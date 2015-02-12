@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="My" GeneratedClassName="MySettings" UseMySettingsClassName="true">
+  <Profiles />
+  <Settings>
+    <Setting Name="LastFolder" Roaming="true" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="urlImdb" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://www.imdb.com/find?q=TESTSEARCH&amp;s=all</Value>
+    </Setting>
+    <Setting Name="urlSubdivx" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://www.subdivx.com/index.php?buscar=TESTSEARCH&amp;accion=5&amp;masdesc=&amp;subtitulos=1&amp;realiza_b=1</Value>
+    </Setting>
+    <Setting Name="MRU_Folders" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ExtensionList" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.m4v,.mkv,.avi,.mpg,.wmv,.mp4,.mpv,.mpeg,.vob</Value>
+    </Setting>
+    <Setting Name="WordsList" Type="System.String" Scope="User">
+      <Value Profile="(Default)">720p,xvid,ac3,dvdscr,mp3,hdrip,vodrip,brrip,480p,1080p,bluray,x264,bdrip,r5,rc,proper,ws,mp4,nfo,dvdrip,hdscr,spanish,dx50,brscr,dual,h264,vhsrip,divx,dvbrip,aac,wma,dts,scr,r6,vhsscr,webrip,hdtv,webdl</Value>
+    </Setting>
+    <Setting Name="FilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+  </Settings>
+</SettingsFile>
