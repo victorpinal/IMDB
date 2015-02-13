@@ -1,8 +1,7 @@
 ﻿Imports System.IO
-Imports System.Text.RegularExpressions
-Imports System.Threading.Tasks
-Imports System.Threading
 Imports System.Text
+Imports System.Text.RegularExpressions
+Imports System.Threading
 Imports SevenZip
 
 Public Class MainForm
@@ -39,11 +38,6 @@ Public Class MainForm
             AddHandler uxbtnXML.Click, Sub() GestionXML.ShowDialog(Me)
             AddHandler uxbtnVerDirectorio.Click, Sub() Diagnostics.Process.Start(My.Settings.LastFolder)
             AddHandler ConfigForm.FormClosed, Sub() CargarRutasMRU()
-
-            'Dim myTable As DataTable = BaseDatos.Select("SELECT * FROM Film WHERE IFNULL(Rating,0) > 0")
-            'For Each myRow As DataRow In myTable.Rows
-            '    BaseDatos.ExecuteNonQuery("UPDATE FILM SET RatingCount=" & GetRatingCount(UnZip(TryCast(myRow("html"), Byte()))) & " WHERE RowId=" & myRow("RowId").ToString)
-            'Next
 
         Catch ex As Exception
             Errores("Form1_Load:" & ex.Message)
@@ -105,7 +99,7 @@ Public Class MainForm
     ''' <remarks></remarks>
     Private Function CargaFiles(sDirs() As String) As String()
         Try
-            Return (From d In sDirs From f In Directory.GetFiles(d) Where My.Settings.ExtensionList.Split(","c).Contains(Path.GetExtension(f)) Select Replace(f,Path.GetPathRoot(f),DriveInfo.GetDrives().First(Function(i) i.Name=Path.GetPathRoot(f)).VolumeLabel & Path.DirectorySeparatorChar)).ToArray
+            Return (From d In sDirs From f In Directory.GetFiles(d) Where My.Settings.ExtensionList.Split(","c).Contains(Path.GetExtension(f)) Select Replace(f, Path.GetPathRoot(f), DriveInfo.GetDrives().First(Function(i) i.Name = Path.GetPathRoot(f)).VolumeLabel & Path.DirectorySeparatorChar)).ToArray
         Catch ex As Exception
             Errores("CargaFiles: " & ex.Message)
             Return {}
@@ -123,17 +117,21 @@ Public Class MainForm
             If (uxchkVerTodo.Checked) Then
                 sql &= " WHERE 1=1"
             Else
-            	Dim myFiles As String() = CargaFiles(CType(IIf(uxchkVerMRU.Checked, My.Settings.MRU_Folders.Cast(Of String).ToArray, {My.Settings.LastFolder}), String())).Select(Function(e) BaseDatos.QuitaComilla(e)).ToArray
-            	Dim myTableTmp As DataTable = BaseDatos.Select("SELECT Rowid,Id,Ruta FROM Film WHERE Id IN ('" & myFiles.Aggregate(Function(a,b) Path.GetFileName(a) & "','" & Path.GetFileName(b)) & "')")
-            	For Each myFile As String In myFiles
-            		Dim myRow() As DataRow = myTableTmp.Select("Id='" & Path.GetFileName(myFile) & "'")
-            		If (myRow.Length = 0) Then
-            			BaseDatos.ExecuteNonQuery("INSERT INTO Film (Id,Name,Ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile) & "',datetime('now'))")
-            		ElseIf (IsDBNull(myRow(0)("Ruta")) OrElse myRow(0)("Ruta").ToString <> Path.GetDirectoryName(myFile)) Then
-            			BaseDatos.ExecuteNonQuery("UPDATE Film SET Ruta='" & Path.GetDirectoryName(myFile) & "' WHERE RowId=" & myRow(0)("RowId").ToString)
-            		End if
-                Next
-                sql &= " WHERE Id IN ('" & myFiles.Aggregate(Function(a,b) Path.GetFileName(a) & "','" & Path.GetFileName(b)) & "')"
+                Dim myFiles As String() = CargaFiles(CType(IIf(uxchkVerMRU.Checked, My.Settings.MRU_Folders.Cast(Of String).ToArray, {My.Settings.LastFolder}), String())).Select(Function(e) BaseDatos.QuitaComilla(e)).ToArray
+                If (myFiles.Length > 0) Then
+                    Dim myTableTmp As DataTable = BaseDatos.Select("SELECT Rowid,Id,Ruta FROM Film WHERE Id IN ('" & myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b)) & "')")
+                    For Each myFile As String In myFiles
+                        Dim myRow() As DataRow = myTableTmp.Select("Id='" & Path.GetFileName(myFile) & "'")
+                        If (myRow.Length = 0) Then
+                            BaseDatos.ExecuteNonQuery("INSERT INTO Film (Id,Name,Ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile) & "',datetime('now'))")
+                        ElseIf (IsDBNull(myRow(0)("Ruta")) OrElse myRow(0)("Ruta").ToString <> Path.GetDirectoryName(myFile)) Then
+                            BaseDatos.ExecuteNonQuery("UPDATE Film SET Ruta='" & Path.GetDirectoryName(myFile) & "' WHERE RowId=" & myRow(0)("RowId").ToString)
+                        End If
+                    Next
+                    sql &= " WHERE Id IN ('" & myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b)) & "')"
+                Else
+                    sql &= " WHERE 1<>1"
+                End If
             End If
             If (uxchkPendientes.CheckState = CheckState.Checked) Then
                 sql &= " AND (LENGTH(Link) = 0 OR Rating IS NULL OR Rating = 0)"
@@ -218,21 +216,6 @@ Public Class MainForm
     End Function
 
     ''' <summary>
-    ''' Comprueba si existe algún fichero con el nombre (id) indicado en la base de datos
-    ''' </summary>
-    ''' <param name="id">Nombre del fichero</param>
-    ''' <returns>True existe en la tabla, False no existe en la tabla</returns>
-    ''' <remarks></remarks>
-'    Private Function FindById(ByVal id As String) As Boolean
-'        Try
-'            Return BaseDatos.Select("SELECT rowid FROM Film WHERE Id='" & id & "'").Rows.Count > 0
-'        Catch ex As Exception
-'            Errores("FindRowById: " & ex.Message)
-'            Return True
-'        End Try
-'    End Function
-
-    ''' <summary>
     ''' Calcula la media de valoraciones de los registros visibles del grid
     ''' </summary>
     ''' <returns>Valorarción media</returns>
@@ -253,28 +236,12 @@ Public Class MainForm
             End If
         Catch ex As Exception
         End Try
-        Return Media
+        Return media
     End Function
 
     Private Function CheckURLFormat(url As String) As Boolean
         Return Regex.IsMatch(url, "/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/")
     End Function
-
-    'Private Function CheckURL(ByVal url As String) As Boolean
-    '    Dim Peticion As System.Net.WebRequest
-    '    Dim Respuesta As System.Net.HttpWebResponse
-    '    CheckURL = False
-    '    Try
-    '        If (Not url.Substring(0, 7).ToLower.Equals("http://")) Then url = "http://" & url
-    '        Peticion = System.Net.WebRequest.Create(url) 'La direccion debe tener el formato ('http://www.direccion.com, es, net, org, vns, etc...))
-    '        Respuesta = Peticion.GetResponse()
-    '        CheckURL = True
-    '    Catch ex As System.Net.WebException
-    '        MsgBox("La direccion " & url & " no se encuentra disponible.")
-    '    Catch ex As System.UriFormatException
-    '        MsgBox("La direccion debe tener el formato ('http://www.direccion.com, es, net, org, vns, etc...))")
-    '    End Try
-    'End Function
 
     Private Function GetHtml(url As String) As String
         GetHtml = String.Empty
@@ -377,23 +344,23 @@ Public Class MainForm
             If (e.RowIndex >= 0) Then
                 Select Case e.ColumnIndex
                     Case uxColumnGo.Index       'Columna Ir a la página del enlace (IMDB)                        
-                        If (e.Button = MouseButtons.Middle) then
-	                        Dim myRow As DataRow = CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
-	                        If (CBool(myRow("html"))) Then
-	                            Dim myTable As DataTable = BaseDatos.Select("SELECT html FROM film WHERE RowId=" & myRow("RowId").ToString)
-	                            If (myTable.Rows.Count > 0) Then
-	                                Dim source As String = DecompressString(CType(myTable.Rows(0)(0), Byte()))
-	                                If (source <> WebBrowser.source) Then
-	                                    WebBrowser.Ver(source)
-	                                Else
-	                                    WebBrowser.Close()
-	                                End If
-	
-	                            End If
-	                        End If
+                        If (e.Button = MouseButtons.Middle) Then
+                            Dim myRow As DataRow = CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
+                            If (CBool(myRow("html"))) Then
+                                Dim myTable As DataTable = BaseDatos.Select("SELECT html FROM film WHERE RowId=" & myRow("RowId").ToString)
+                                If (myTable.Rows.Count > 0) Then
+                                    Dim source As String = DecompressString(CType(myTable.Rows(0)(0), Byte()))
+                                    If (source <> WebBrowser.source) Then
+                                        WebBrowser.Ver(source)
+                                    Else
+                                        WebBrowser.Close()
+                                    End If
+
+                                End If
+                            End If
                         Else
-                        	url = uxgrd.Rows(e.RowIndex).Cells(uxColumnLink.Name).Value.ToString
-                        	If (CheckURLFormat(url)) Then Diagnostics.Process.Start(url)
+                            url = uxgrd.Rows(e.RowIndex).Cells(uxColumnLink.Name).Value.ToString
+                            If (CheckURLFormat(url)) Then Diagnostics.Process.Start(url)
                         End If
                     Case uxColumnFind.Index     'Columna Buscar en la página de (IMDB)
                         Diagnostics.Process.Start(My.Settings.urlImdb.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
@@ -508,7 +475,7 @@ Public Class MainForm
                     If (Not String.IsNullOrEmpty(sourceString)) Then
                         myRow("html") = 1
                         Dim sql As String = "UPDATE Film SET html=@html"
-                        Dim rating As Decimal = GetRating(sourceString)                        
+                        Dim rating As Decimal = GetRating(sourceString)
                         If (rating > 0 AndAlso (IsDBNull(myRow(uxColumnRating.DataPropertyName)) OrElse rating <> CDec(myRow(uxColumnRating.DataPropertyName)))) Then
                             myRow(uxColumnRating.DataPropertyName) = rating
                             sql &= ",Rating=" & rating
@@ -533,94 +500,46 @@ Public Class MainForm
 
 #End Region
 
-'#Region "Compresion"
-'
-'    ''' <summary>
-'    ''' Compress
-'    ''' </summary>
-'    ''' <param name="str"></param>
-'    ''' <returns></returns>
-'    ''' <remarks></remarks>
-'    Private Function Zip(str As String) As Byte()
-'        Dim result As Byte() = {}
-'        Try
-'            Dim data As Byte() = System.Text.Encoding.Default.GetBytes(str)
-'            Using cmpStream As New MemoryStream()
-'                Using hgs As New Compression.GZipStream(cmpStream, Compression.CompressionMode.Compress)
-'                    hgs.Write(data, 0, data.Length)
-'                    hgs.Close()
-'                End Using
-'                result = cmpStream.ToArray()
-'            End Using
-'        Catch ex As Exception
-'            Errores("Zip:" & ex.Message)
-'        End Try
-'        Return result
-'    End Function
-'
-'    ''' <summary>
-'    ''' DeCompress
-'    ''' </summary>
-'    ''' <param name="value"></param>
-'    ''' <returns></returns>
-'    ''' <remarks></remarks>
-'    Private Function UnZip(value As Byte()) As String
-'        Dim result As String = String.Empty
-'        Try
-'            Using decmpStream As New MemoryStream(value)
-'                Using hgs As New Compression.GZipStream(decmpStream, Compression.CompressionMode.Decompress)
-'                    Using reader As New StreamReader(hgs)
-'                        result = reader.ReadToEnd
-'                    End Using
-'                End Using
-'            End Using
-'        Catch ex As Exception
-'            Errores("UnZip:" & ex.Message)
-'        End Try
-'        Return result
-'    End Function
-'    
-'    
-'    #End Region
-    
-    #Region "7zip"
-    
-Private Function CompressString(text As String) As Byte()
-	Dim compressedData As Byte() = Nothing
-	Dim compressor As New SevenZipCompressor()
-	compressor.CompressionMethod = CompressionMethod.Ppmd
-	compressor.CompressionLevel = CompressionLevel.Ultra
-	compressor.ScanOnlyWritable = True
-	compressor.DefaultItemName = "T"
-	
-	dim utf8 as new UTF8Encoding()
-	Using msin As New MemoryStream(utf8.GetBytes(text))
-		Using msout As New MemoryStream()
-			compressor.CompressStream(msin, msout)
-			compressedData = msout.ToArray()
-		End Using
-	End Using
-	Return compressedData
-End Function
+#Region "7zip"
 
-Private Function DecompressString(compressedText As Byte()) As String
-	Dim uncompressedbuffer As Byte() = Nothing
-	Using compressedbuffer As New MemoryStream(compressedText)
-		Try
-			Using extractor As New SevenZipExtractor(compressedbuffer)
-				Using msout As New MemoryStream()
-					extractor.ExtractFile(0, msout)
-					uncompressedbuffer = msout.ToArray()
-				End Using
-			End Using
-		Catch e As Exception
-			uncompressedbuffer = Encoding.UTF8.GetBytes(e.Message)
-		End Try
-	End Using
-	Return Encoding.UTF8.GetString(uncompressedbuffer)
-End Function
+    Private Function CompressString(text As String) As Byte()
+        Dim compressedData As Byte() = Nothing
+        Dim compressor As New SevenZipCompressor()
+        compressor.CompressionMethod = CompressionMethod.Ppmd
+        compressor.CompressionLevel = CompressionLevel.Ultra
+        compressor.ScanOnlyWritable = True
+        compressor.DefaultItemName = "T"
+
+        Dim utf8 As New UTF8Encoding()
+        Using msin As New MemoryStream(utf8.GetBytes(text))
+            Using msout As New MemoryStream()
+                compressor.CompressStream(msin, msout)
+                compressedData = msout.ToArray()
+            End Using
+        End Using
+        Return compressedData
+    End Function
+
+    Private Function DecompressString(compressedText As Byte()) As String
+        Dim uncompressedbuffer As Byte() = Nothing
+        Using compressedbuffer As New MemoryStream(compressedText)
+            Try
+                Using extractor As New SevenZipExtractor(compressedbuffer)
+                    Using msout As New MemoryStream()
+                        extractor.ExtractFile(0, msout)
+                        uncompressedbuffer = msout.ToArray()
+                    End Using
+                End Using
+            Catch e As Exception
+                uncompressedbuffer = Encoding.UTF8.GetBytes(e.Message)
+            End Try
+        End Using
+        Return Encoding.UTF8.GetString(uncompressedbuffer)
+    End Function
 
 #End Region
+
+#Region "Errores"
 
     Private Sub Errores(str As String)
         uxError.SetError(uxbtnRefresh, str)
@@ -630,4 +549,6 @@ End Function
         End Using
     End Sub
 
+#End Region
+    
 End Class

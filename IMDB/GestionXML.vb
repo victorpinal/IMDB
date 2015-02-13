@@ -1,7 +1,4 @@
-﻿Imports System.Windows.Forms
-Imports System.IO
-
-Public Class GestionXML
+﻿Public Class GestionXML
 
     Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OK_Button.Click
         Me.DialogResult = System.Windows.Forms.DialogResult.OK
@@ -23,18 +20,22 @@ Public Class GestionXML
                 Dim myTableBD As DataTable = BaseDatos.Select("SELECT * FROM Film")
 
                 'Metemos registros nuevos
-                For Each myRow As DataRow In myTableXML.Rows                    
+                For Each myRow As DataRow In myTableXML.Rows
                     If (myTableBD.Select("Id='" & BaseDatos.QuitaComilla(myRow("Id").ToString) & "'").Length = 0) Then
-                        BaseDatos.ExecuteNonQuery("INSERT INTO Film (Id,Name,Link,Rating) VALUES ('" & _
+                        BaseDatos.ExecuteNonQuery("INSERT INTO Film (Id,Name,Ruta,Link,Rating,RatingCount) VALUES ('" & _
                                                   BaseDatos.QuitaComilla(myRow("Id").ToString) & "','" & _
                                                   BaseDatos.QuitaComilla(myRow("Name").ToString) & "','" & _
+                                                  BaseDatos.QuitaComilla(myRow("Ruta").ToString) & "','" & _
                                                   BaseDatos.QuitaComilla(myRow("Link").ToString) & "'," & _
-                                                  myRow("Rating").ToString & ")")
+                                                  myRow("Rating").ToString & "," & _
+                                                  myRow("RatingCount").ToString & ")")
                     Else
                         BaseDatos.ExecuteNonQuery("UPDATE Film SET " & _
                                                   "Name='" & BaseDatos.QuitaComilla(myRow("Name").ToString) & "'," & _
+                                                  "Ruta='" & BaseDatos.QuitaComilla(myRow("Ruta").ToString) & "'," & _
                                                   "Link='" & BaseDatos.QuitaComilla(myRow("Link").ToString) & "'," & _
-                                                  "Rating=" & myRow("Rating").ToString & _
+                                                  "Rating=" & myRow("Rating").ToString & "," & _
+                                                  "RatingCount=" & myRow("RatingCount").ToString & _
                                                   " WHERE Id='" & BaseDatos.QuitaComilla(myRow("Id").ToString) & "'")
                     End If
                 Next
@@ -50,7 +51,7 @@ Public Class GestionXML
         Try
             uxdlgSave.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             If (uxdlgSave.ShowDialog = DialogResult.OK) Then
-                Dim myTableBD As DataTable = BaseDatos.Select("SELECT * FROM Film")
+                Dim myTableBD As DataTable = BaseDatos.Select("SELECT Rowid,Id,Name,Ruta,Link,Rating,RatingCount,fecha_alta FROM Film")
                 myTableBD.WriteXml(uxdlgSave.FileName) 'Guardamos los datos del grid en un xml      
                 uxlblEstadoGuardado.Text = "Fichero " & uxdlgSave.FileName & " volcado"
             End If
