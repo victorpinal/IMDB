@@ -119,7 +119,7 @@ Public Class MainForm
             Else
                 Dim myFiles As String() = CargaFiles(CType(IIf(uxchkVerMRU.Checked, My.Settings.MRU_Folders.Cast(Of String).ToArray, {My.Settings.LastFolder}), String())).Select(Function(e) BaseDatos.QuitaComilla(e)).ToArray
                 If (myFiles.Length > 0) Then
-                    Dim myTableTmp As DataTable = BaseDatos.Select("SELECT Rowid,Id,Ruta FROM Film WHERE Id IN ('" & myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b)) & "')")
+                    Dim myTableTmp As DataTable = BaseDatos.Select("SELECT Rowid,Id,Ruta FROM Film WHERE Id IN ('" & If(myFiles.Length=1,Path.GetFileName(myFiles(0)),myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')")
                     For Each myFile As String In myFiles
                         Dim myRow() As DataRow = myTableTmp.Select("Id='" & Path.GetFileName(myFile) & "'")
                         If (myRow.Length = 0) Then
@@ -128,7 +128,7 @@ Public Class MainForm
                             BaseDatos.ExecuteNonQuery("UPDATE Film SET Ruta='" & Path.GetDirectoryName(myFile) & "' WHERE RowId=" & myRow(0)("RowId").ToString)
                         End If
                     Next
-                    sql &= " WHERE Id IN ('" & myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b)) & "')"
+                    sql &= " WHERE Id IN ('" & If(myFiles.Length=1,Path.GetFileName(myFiles(0)),myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')"
                 Else
                     sql &= " WHERE 1<>1"
                 End If
