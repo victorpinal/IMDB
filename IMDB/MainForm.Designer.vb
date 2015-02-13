@@ -437,6 +437,7 @@ Partial Class MainForm
     	Me.uxColumnRating.DefaultCellStyle = dataGridViewCellStyle1
     	Me.uxColumnRating.HeaderText = "Rating"
     	Me.uxColumnRating.Name = "uxColumnRating"
+    	Me.uxColumnRating.ReadOnly = true
     	Me.uxColumnRating.Width = 35
     	'
     	'uxColumnRatingCount
@@ -448,6 +449,7 @@ Partial Class MainForm
     	Me.uxColumnRatingCount.DefaultCellStyle = dataGridViewCellStyle2
     	Me.uxColumnRatingCount.HeaderText = "R.Count"
     	Me.uxColumnRatingCount.Name = "uxColumnRatingCount"
+    	Me.uxColumnRatingCount.ReadOnly = true
     	Me.uxColumnRatingCount.Width = 50
     	'
     	'MainForm
