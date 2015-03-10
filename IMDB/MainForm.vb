@@ -182,7 +182,9 @@ Public Class MainForm
                 If (uxchkVerTodo.Checked) Then
                     Dim sFile As String = (From f In sMRUFiles Where f.Contains(row.Cells(uxColumnId.Index).Value.ToString)).FirstOrDefault
                     If (Not String.IsNullOrEmpty(sFile)) Then
-                        row.Cells(uxColumnId.Index).Style.Font = New Font(uxgrd.DefaultCellStyle.Font, FontStyle.Bold)
+                        'row.Cells(uxColumnId.Index).Style.Font = New Font(uxgrd.DefaultCellStyle.Font, FontStyle.Bold)
+                        row.Cells(uxColumnId.Index).Style.BackColor = Color.Black
+                        row.Cells(uxColumnId.Index).Style.ForeColor = Color.WhiteSmoke
                         row.Cells(uxColumnId.Index).ToolTipText = sFile
                     End If
                 End If
