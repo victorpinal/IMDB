@@ -1,45 +1,33 @@
 ﻿Imports System.IO
+imports MySql.Data
 
 Public Class BaseDatos
 
-    Private Shared myConection As SQLite.SQLiteConnection
-    Private Shared myCommand As SQLite.SQLiteCommand
+    Private Shared myConection As MySqlClient.MySqlConnection
+    Private Shared myCommand As MySqlClient.MySqlCommand
 
     ''' <summary>
     ''' Comprueba la base de datos sqlite y la tabla "Film"
     ''' </summary>
     ''' <remarks></remarks>
     Shared Sub Check()
-        Try
-            'Inicializamos la ruta por defecto del fichero de datos
-            If (String.IsNullOrEmpty(My.Settings.FilePath)) Then
-                My.Settings.FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Peliculas.db")
-            End If
-            'Creamos la base de datos y la tabla si no existe
-            myConection = New SQLite.SQLiteConnection("Data Source=" & My.Settings.FilePath & ";Version=3;")
-            myCommand = New SQLite.SQLiteCommand(myConection)
-
-            If ([Select]("SELECT name FROM sqlite_master WHERE type='table' AND name='Film';").Rows.Count = 0) Then
-                ExecuteNonQuery("CREATE TABLE Film (" & _
-                                "   Rowid INTEGER PRIMARY KEY ASC," & _
-                                "   Id TEXT NOT NULL UNIQUE," & _
-                                "   Name TEXT," & _
-                                "   Ruta TEXT," & _
-                                "   Link TEXT," & _
-                                "   Rating REAL," & _
-                                "   RatingCount INTEGER," & _
-                                "   html BLOB," & _
-                                "   fecha_alta DATETIME)")
-                ExecuteNonQuery("CREATE VIEW vw_Film AS " & _
-                                "SELECT Rowid,Id,NAME,Ruta,t1.Link,IFNULL(Rating,0) AS Rating,IFNULL(RatingCount,0) AS RatingCount,Total,IFNULL(Duplicados,0) AS Duplicados," & _
-                                "CASE WHEN html IS NOT NULL THEN 1 ELSE 0 END AS html " & _
-                                "FROM Film t1 JOIN (" & _
-                                "SELECT COUNT(*) AS Total FROM Film) " & _
-                                "LEFT JOIN ( SELECT Link, COUNT(*) AS Duplicados " & _
-                                "FROM Film WHERE LENGTH(Link) > 0 GROUP BY Link " & _
-                                ") vw ON vw.Link = t1.Link")
-            End If
-
+        Try        
+        	If (String.IsNullOrEmpty(My.MySettings.Default.Server)) Then
+        		My.MySettings.Default.Server = InputBox("Servidor MySQL?",,"localhost")
+        		My.MySettings.Default.Port = InputBox("Puerto",,"3306")
+        		My.MySettings.Default.User = InputBox("Usuario")
+        		My.MySettings.Default.Password = InputBox("Password")
+        	End If
+        	
+        	dim conb As mySqlClient.MySqlConnectionStringBuilder = New MySqlClient.MySqlConnectionStringBuilder()
+        	conb.Server = My.MySettings.Default.Server
+        	conb.Port = CUInt(My.MySettings.Default.Port)
+        	conb.UserID = My.MySettings.Default.User
+        	conb.Password = My.MySettings.Default.Password
+        	conb.Database = "peliculas"
+        	myConection = New MySqlClient.MySqlConnection(conb.ConnectionString)        
+        	
+            myCommand = myConection.CreateCommand()
         Catch ex As Exception
             Errores("BaseDatos:Check:" & ex.Message)
         End Try
@@ -70,7 +58,7 @@ Public Class BaseDatos
     ''' <param name="Sql"></param>
     ''' <returns></returns>
     ''' <remarks></remarks>
-    Shared Function ExecuteNonQuery(Sql As String, Optional Param As SQLite.SQLiteParameter = Nothing) As Integer
+    Shared Function ExecuteNonQuery(Sql As String, Optional Param As MySqlClient.MySqlParameter = Nothing) As Integer
         ExecuteNonQuery = 0
         Try
             myConection.Open()

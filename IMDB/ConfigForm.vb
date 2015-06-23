@@ -3,7 +3,7 @@
     Private Sub Config_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         Me.Icon = Drawing.Icon.FromHandle(My.Resources.refresca.GetHicon)
-        With My.Settings
+        With My.MySettings.Default
             uxtxtFicheroDatos.Text = .FilePath
             uxtxtIMDB.Text = .urlImdb
             uxtxtSUBDIVX.Text = .urlSubdivx
@@ -11,6 +11,10 @@
             uxtxtListaPalabras.Text = .WordsList
             uxlstDirectorios.Items.Clear()
             uxlstDirectorios.Items.AddRange(.MRU_Folders.Cast(Of String).ToArray)
+            uxtxtServidor.Text = .Server
+            uxtxtPuerto.Text = .Port
+            uxtxtUsuario.Text = .User
+            uxtxtPassword.Text = .Password
         End With
 
     End Sub
@@ -38,7 +42,7 @@
                 Exit Sub
             End If
 
-            With My.Settings
+            With My.MySettings.Default
                 .FilePath = Trim(uxtxtFicheroDatos.Text)
                 .urlImdb = Trim(uxtxtIMDB.Text)
                 .urlSubdivx = Trim(uxtxtSUBDIVX.Text)
@@ -46,6 +50,10 @@
                 .WordsList = Trim(uxtxtListaPalabras.Text)
                 .MRU_Folders.Clear()
                 .MRU_Folders.AddRange(uxlstDirectorios.Items.Cast(Of String).ToArray)
+                .Server = Trim(uxtxtServidor.Text)
+                .Port = Trim(uxtxtPuerto.Text)
+                .User = Trim(uxtxtUsuario.Text)
+                .Password = Trim(uxtxtPassword.Text)
             End With
 
             DialogResult = DialogResult.OK
@@ -77,5 +85,5 @@
             MsgBox("uxbtnBuscarFichero_Click: " & ex.Message)
         End Try
     End Sub
-
+    
 End Class

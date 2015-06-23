@@ -3,6 +3,7 @@ Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Threading
 Imports SevenZip
+imports MySql.Data
 
 Public Class MainForm
 
@@ -283,7 +284,7 @@ Public Class MainForm
 
     Private Sub uxgrd_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs) Handles uxgrd.CellEndEdit
         Dim myRow As DataRow = TryCast(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
-        Dim myParam As SQLite.SQLiteParameter = Nothing
+        Dim myParam As MySqlClient.MySqlParameter = Nothing
         If (uxgrd.IsCurrentRowDirty) Then
             Dim sql = "UPDATE Film SET "
             Select Case e.ColumnIndex
@@ -298,7 +299,7 @@ Public Class MainForm
                             sql &= "Link='" & url & "'"
                             myRow("html") = 1
                             sql &= ",html=@html"
-                            myParam = New SQLite.SQLiteParameter("@html", CompressString(sourceString))
+                            myParam = New MySqlClient.MySqlParameter("@html", CompressString(sourceString))
                             Dim Rating As Decimal = GetRating(sourceString)
                             myRow(uxColumnRating.DataPropertyName) = Rating
                             sql &= ",Rating=" & Rating
@@ -487,7 +488,7 @@ Public Class MainForm
                             myRow(uxColumnRatingCount.DataPropertyName) = ratingCount
                             sql &= ",RatingCount=" & ratingCount
                         End If
-                        BaseDatos.ExecuteNonQuery(sql & " WHERE Rowid=" & myRow("RowId").ToString, New SQLite.SQLiteParameter("@html", CompressString(sourceString)))
+                        BaseDatos.ExecuteNonQuery(sql & " WHERE Rowid=" & myRow("RowId").ToString, New MySqlClient.MySqlParameter("@html", CompressString(sourceString)))
                         myRow.AcceptChanges()
                     End If
                 End If
