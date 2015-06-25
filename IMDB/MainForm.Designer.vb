@@ -95,7 +95,7 @@ Partial Class MainForm
     	Me.uxgrd.Location = New System.Drawing.Point(0, 0)
     	Me.uxgrd.Name = "uxgrd"
     	Me.uxgrd.RowHeadersWidth = 20
-    	Me.uxgrd.Size = New System.Drawing.Size(1008, 599)
+    	Me.uxgrd.Size = New System.Drawing.Size(1024, 599)
     	Me.uxgrd.TabIndex = 0
     	Me.uxgrd.VirtualMode = true
     	'
@@ -157,7 +157,7 @@ Partial Class MainForm
     	Me.uxpnlAbajo.Dock = System.Windows.Forms.DockStyle.Bottom
     	Me.uxpnlAbajo.Location = New System.Drawing.Point(0, 628)
     	Me.uxpnlAbajo.Name = "uxpnlAbajo"
-    	Me.uxpnlAbajo.Size = New System.Drawing.Size(1008, 33)
+    	Me.uxpnlAbajo.Size = New System.Drawing.Size(1024, 33)
     	Me.uxpnlAbajo.TabIndex = 1
     	'
     	'uxbntChange
@@ -180,14 +180,14 @@ Partial Class MainForm
     	Me.uxcmbPath.FormattingEnabled = true
     	Me.uxcmbPath.Location = New System.Drawing.Point(112, 8)
     	Me.uxcmbPath.Name = "uxcmbPath"
-    	Me.uxcmbPath.Size = New System.Drawing.Size(486, 21)
+    	Me.uxcmbPath.Size = New System.Drawing.Size(502, 21)
     	Me.uxcmbPath.TabIndex = 1
     	'
     	'uxbtnVerDirectorio
     	'
     	Me.uxbtnVerDirectorio.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxbtnVerDirectorio.Image = Global.IMDB.My.Resources.Resources.carpeta
-    	Me.uxbtnVerDirectorio.Location = New System.Drawing.Point(604, 6)
+    	Me.uxbtnVerDirectorio.Location = New System.Drawing.Point(620, 6)
     	Me.uxbtnVerDirectorio.Name = "uxbtnVerDirectorio"
     	Me.uxbtnVerDirectorio.Size = New System.Drawing.Size(23, 23)
     	Me.uxbtnVerDirectorio.TabIndex = 2
@@ -197,7 +197,7 @@ Partial Class MainForm
     	'uxlblRegistros
     	'
     	Me.uxlblRegistros.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
-    	Me.uxlblRegistros.Location = New System.Drawing.Point(633, 11)
+    	Me.uxlblRegistros.Location = New System.Drawing.Point(649, 11)
     	Me.uxlblRegistros.Name = "uxlblRegistros"
     	Me.uxlblRegistros.Size = New System.Drawing.Size(291, 13)
     	Me.uxlblRegistros.TabIndex = 3
@@ -208,7 +208,7 @@ Partial Class MainForm
     	Me.uxbtnRefresh.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxbtnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Popup
     	Me.uxbtnRefresh.Image = Global.IMDB.My.Resources.Resources.refresca
-    	Me.uxbtnRefresh.Location = New System.Drawing.Point(930, 4)
+    	Me.uxbtnRefresh.Location = New System.Drawing.Point(946, 4)
     	Me.uxbtnRefresh.Name = "uxbtnRefresh"
     	Me.uxbtnRefresh.Size = New System.Drawing.Size(75, 27)
     	Me.uxbtnRefresh.TabIndex = 4
@@ -222,7 +222,7 @@ Partial Class MainForm
     	Me.uxpnlGrid.Dock = System.Windows.Forms.DockStyle.Fill
     	Me.uxpnlGrid.Location = New System.Drawing.Point(0, 29)
     	Me.uxpnlGrid.Name = "uxpnlGrid"
-    	Me.uxpnlGrid.Size = New System.Drawing.Size(1008, 599)
+    	Me.uxpnlGrid.Size = New System.Drawing.Size(1024, 599)
     	Me.uxpnlGrid.TabIndex = 2
     	'
     	'uxpnlArriba
@@ -238,14 +238,14 @@ Partial Class MainForm
     	Me.uxpnlArriba.Dock = System.Windows.Forms.DockStyle.Top
     	Me.uxpnlArriba.Location = New System.Drawing.Point(0, 0)
     	Me.uxpnlArriba.Name = "uxpnlArriba"
-    	Me.uxpnlArriba.Size = New System.Drawing.Size(1008, 29)
+    	Me.uxpnlArriba.Size = New System.Drawing.Size(1024, 29)
     	Me.uxpnlArriba.TabIndex = 0
     	'
     	'uxbtnBorrarTexto
     	'
     	Me.uxbtnBorrarTexto.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxbtnBorrarTexto.Image = Global.IMDB.My.Resources.Resources.close
-    	Me.uxbtnBorrarTexto.Location = New System.Drawing.Point(630, 2)
+    	Me.uxbtnBorrarTexto.Location = New System.Drawing.Point(646, 2)
     	Me.uxbtnBorrarTexto.Name = "uxbtnBorrarTexto"
     	Me.uxbtnBorrarTexto.Size = New System.Drawing.Size(23, 24)
     	Me.uxbtnBorrarTexto.TabIndex = 7
@@ -259,14 +259,14 @@ Partial Class MainForm
     	Me.uxtxtBuscar.Font = New System.Drawing.Font("Consolas", 9!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0,Byte))
     	Me.uxtxtBuscar.Location = New System.Drawing.Point(3, 3)
     	Me.uxtxtBuscar.Name = "uxtxtBuscar"
-    	Me.uxtxtBuscar.Size = New System.Drawing.Size(627, 22)
+    	Me.uxtxtBuscar.Size = New System.Drawing.Size(643, 22)
     	Me.uxtxtBuscar.TabIndex = 0
     	'
     	'uxchkVerMRU
     	'
     	Me.uxchkVerMRU.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxchkVerMRU.AutoSize = true
-    	Me.uxchkVerMRU.Location = New System.Drawing.Point(669, 7)
+    	Me.uxchkVerMRU.Location = New System.Drawing.Point(685, 7)
     	Me.uxchkVerMRU.Name = "uxchkVerMRU"
     	Me.uxchkVerMRU.Size = New System.Drawing.Size(51, 17)
     	Me.uxchkVerMRU.TabIndex = 1
@@ -277,7 +277,7 @@ Partial Class MainForm
     	'
     	Me.uxchkVerTodo.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxchkVerTodo.AutoSize = true
-    	Me.uxchkVerTodo.Location = New System.Drawing.Point(726, 7)
+    	Me.uxchkVerTodo.Location = New System.Drawing.Point(742, 7)
     	Me.uxchkVerTodo.Name = "uxchkVerTodo"
     	Me.uxchkVerTodo.Size = New System.Drawing.Size(51, 17)
     	Me.uxchkVerTodo.TabIndex = 2
@@ -288,7 +288,7 @@ Partial Class MainForm
     	'
     	Me.uxchkPendientes.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxchkPendientes.AutoSize = true
-    	Me.uxchkPendientes.Location = New System.Drawing.Point(783, 7)
+    	Me.uxchkPendientes.Location = New System.Drawing.Point(799, 7)
     	Me.uxchkPendientes.Name = "uxchkPendientes"
     	Me.uxchkPendientes.Size = New System.Drawing.Size(79, 17)
     	Me.uxchkPendientes.TabIndex = 3
@@ -301,7 +301,7 @@ Partial Class MainForm
     	'
     	Me.uxchkDuplicados.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxchkDuplicados.AutoSize = true
-    	Me.uxchkDuplicados.Location = New System.Drawing.Point(868, 7)
+    	Me.uxchkDuplicados.Location = New System.Drawing.Point(884, 7)
     	Me.uxchkDuplicados.Name = "uxchkDuplicados"
     	Me.uxchkDuplicados.Size = New System.Drawing.Size(79, 17)
     	Me.uxchkDuplicados.TabIndex = 4
@@ -313,7 +313,7 @@ Partial Class MainForm
     	'
     	Me.uxbtnConfiguracion.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxbtnConfiguracion.Image = Global.IMDB.My.Resources.Resources.refresca
-    	Me.uxbtnConfiguracion.Location = New System.Drawing.Point(953, 3)
+    	Me.uxbtnConfiguracion.Location = New System.Drawing.Point(969, 3)
     	Me.uxbtnConfiguracion.Name = "uxbtnConfiguracion"
     	Me.uxbtnConfiguracion.Size = New System.Drawing.Size(23, 23)
     	Me.uxbtnConfiguracion.TabIndex = 5
@@ -324,7 +324,7 @@ Partial Class MainForm
     	'
     	Me.uxbtnXML.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right),System.Windows.Forms.AnchorStyles)
     	Me.uxbtnXML.Image = Global.IMDB.My.Resources.Resources.xml
-    	Me.uxbtnXML.Location = New System.Drawing.Point(982, 3)
+    	Me.uxbtnXML.Location = New System.Drawing.Point(998, 3)
     	Me.uxbtnXML.Name = "uxbtnXML"
     	Me.uxbtnXML.Size = New System.Drawing.Size(23, 23)
     	Me.uxbtnXML.TabIndex = 6
@@ -450,13 +450,13 @@ Partial Class MainForm
     	Me.uxColumnRatingCount.HeaderText = "R.Count"
     	Me.uxColumnRatingCount.Name = "uxColumnRatingCount"
     	Me.uxColumnRatingCount.ReadOnly = true
-    	Me.uxColumnRatingCount.Width = 50
+    	Me.uxColumnRatingCount.Width = 55
     	'
     	'MainForm
     	'
     	Me.AutoScaleDimensions = New System.Drawing.SizeF(6!, 13!)
     	Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-    	Me.ClientSize = New System.Drawing.Size(1008, 661)
+    	Me.ClientSize = New System.Drawing.Size(1024, 661)
     	Me.Controls.Add(Me.uxpnlGrid)
     	Me.Controls.Add(Me.uxpnlArriba)
     	Me.Controls.Add(Me.uxpnlAbajo)

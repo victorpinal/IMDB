@@ -63,6 +63,7 @@ Public Class BaseDatos
         Try
             myConection.Open()
             myCommand.CommandText = Sql
+            myCommand.Parameters.Clear
             If (Param IsNot Nothing) Then myCommand.Parameters.Add(Param)
             ExecuteNonQuery = myCommand.ExecuteNonQuery
             myConection.Close()

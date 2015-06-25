@@ -124,9 +124,9 @@ Public Class MainForm
                     For Each myFile As String In myFiles
                         Dim myRow() As DataRow = myTableTmp.Select("Id='" & Path.GetFileName(myFile) & "'")
                         If (myRow.Length = 0) Then
-                            BaseDatos.ExecuteNonQuery("INSERT INTO Film (Id,Name,Ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile) & "',datetime('now'))")
+                            BaseDatos.ExecuteNonQuery("INSERT INTO Film (Id,Name,Ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile).Replace("\","\\") & "',NOW())")
                         ElseIf (IsDBNull(myRow(0)("Ruta")) OrElse myRow(0)("Ruta").ToString <> Path.GetDirectoryName(myFile)) Then
-                            BaseDatos.ExecuteNonQuery("UPDATE Film SET Ruta='" & Path.GetDirectoryName(myFile) & "' WHERE RowId=" & myRow(0)("RowId").ToString)
+                            BaseDatos.ExecuteNonQuery("UPDATE Film SET Ruta='" & Path.GetDirectoryName(myFile).Replace("\","\\") & "' WHERE RowId=" & myRow(0)("RowId").ToString)
                         End If
                     Next
                     sql &= " WHERE Id IN ('" & If(myFiles.Length=1,Path.GetFileName(myFiles(0)),myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')"
@@ -140,7 +140,7 @@ Public Class MainForm
                 sql &= " AND NOT (LENGTH(Link) = 0 OR Rating IS NULL OR Rating = 0)"
             End If
             If (uxchkDuplicados.Checked) Then sql &= " AND Duplicados > 1"
-            If (uxtxtBuscar.Text.Length > 0) Then sql &= " AND Id || ' ' || Name LIKE '%" & uxtxtBuscar.Text & "%'"
+            If (uxtxtBuscar.Text.Length > 0) Then sql &= " AND CONCAT(Id ,' ',NAME,' ',IFNULL(Link,'')) LIKE '%" & uxtxtBuscar.Text & "%'"
             Return BaseDatos.Select(sql & " ORDER BY Rating DESC,RatingCount DESC, Id")
         Catch ex As Exception
             Errores("CargarTabla: " & ex.Message)
