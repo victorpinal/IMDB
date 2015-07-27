@@ -65,9 +65,22 @@ Public Class MainForm
                 My.Settings.MRU_Folders = New Specialized.StringCollection
             Else
 
+                'Cargamos como MRU si no existen el LastFolder y todos las distintas rutas de la base de datos
                 If (Not My.Settings.MRU_Folders.Contains(My.Settings.LastFolder)) Then
                     My.Settings.MRU_Folders.Add(My.Settings.LastFolder)
                 End If
+
+                For Each myRow As DataRow In BaseDatos.Select("SELECT DISTINCT ruta FROM `film` WHERE ruta IS NOT NULL").Rows
+                    'Convertimos el nombre de volumen guardado a una ruta válida p.e. ALMACEN/Videos -> D:/Videos
+                    Dim ruta As String = myRow("ruta").ToString
+                    Dim drive As DriveInfo = DriveInfo.GetDrives().FirstOrDefault(Function(d) d.VolumeLabel = ruta.Split(Path.DirectorySeparatorChar)(0))
+                    If (drive IsNot Nothing) Then
+                        ruta = ruta.Replace(drive.VolumeLabel & Path.DirectorySeparatorChar, drive.Name)
+                        If (Not My.Settings.MRU_Folders.Contains(ruta)) Then
+                            My.Settings.MRU_Folders.Add(ruta)
+                        End If
+                    End If
+                Next
 
                 'Filtramos los directorios si no existen los eliminamos
                 Dim i As Integer = 0
