@@ -359,6 +359,15 @@ Public Class MainForm
         Try
             If (e.RowIndex >= 0) Then
                 Select Case e.ColumnIndex
+                    Case uxColumnId.Index   'Buscamos los datos en OmdbApi
+
+                        Dim myRow As DataRow = CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
+                        If (CBool(myRow("html"))) Then
+                            url = uxgrd.Rows(e.RowIndex).Cells(uxColumnLink.Name).Value.ToString
+                            Dim frmDetalle As New Omdb
+                            frmDetalle.mostrar(url.Split("/"c)(4))
+                        End If
+
                     Case uxColumnGo.Index       'Columna Ir a la página del enlace (IMDB)                        
                         If (e.Button = MouseButtons.Middle) Then
                             Dim myRow As DataRow = CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
