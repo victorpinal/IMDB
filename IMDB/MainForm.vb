@@ -1,15 +1,14 @@
 ﻿Imports System.IO
 Imports System.Text
 Imports System.Text.RegularExpressions
-Imports System.Threading
+Imports MySql.Data
 Imports SevenZip
-imports MySql.Data
 
 Public Class MainForm
 
 #Region "Inicializacion"
 
-    Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+    Private Sub Form1_Load(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Load
 
         Try
 
@@ -37,7 +36,7 @@ Public Class MainForm
 
             AddHandler uxbtnConfiguracion.Click, Sub() ConfigForm.ShowDialog(Me)
             AddHandler uxbtnXML.Click, Sub() GestionXML.ShowDialog(Me)
-            AddHandler uxbtnVerDirectorio.Click, Sub() Diagnostics.Process.Start(My.Settings.LastFolder)
+            AddHandler uxbtnVerDirectorio.Click, Sub() Process.Start(My.Settings.LastFolder)
             AddHandler ConfigForm.FormClosed, Sub() CargarRutasMRU()
 
         Catch ex As Exception
@@ -126,35 +125,35 @@ Public Class MainForm
     ''' <remarks></remarks>
     Private Function CargarTabla() As DataTable
         Try
-            Dim sql As String = "SELECT * FROM vw_Film"
+            Dim sql As String = "SELECT * FROM vw_film"
             'Añade los registros (ficheros) que no existen en la base de datos
             If (uxchkVerTodo.Checked) Then
                 sql &= " WHERE 1=1"
             Else
                 Dim myFiles As String() = CargaFiles(CType(IIf(uxchkVerMRU.Checked, My.Settings.MRU_Folders.Cast(Of String).ToArray, {My.Settings.LastFolder}), String())).Select(Function(e) BaseDatos.QuitaComilla(e)).ToArray
                 If (myFiles.Length > 0) Then
-                    Dim myTableTmp As DataTable = BaseDatos.Select("SELECT Rowid,Id,Ruta FROM Film WHERE Id IN ('" & If(myFiles.Length=1,Path.GetFileName(myFiles(0)),myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')")
+                    Dim myTableTmp As DataTable = BaseDatos.Select("SELECT id,filename,ruta FROM film WHERE filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')")
                     For Each myFile As String In myFiles
-                        Dim myRow() As DataRow = myTableTmp.Select("Id='" & Path.GetFileName(myFile) & "'")
+                        Dim myRow() As DataRow = myTableTmp.Select("filename='" & Path.GetFileName(myFile) & "'")
                         If (myRow.Length = 0) Then
-                            BaseDatos.ExecuteNonQuery("INSERT INTO Film (Id,Name,Ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile).Replace("\","\\") & "',NOW())")
-                        ElseIf (IsDBNull(myRow(0)("Ruta")) OrElse myRow(0)("Ruta").ToString <> Path.GetDirectoryName(myFile)) Then
-                            BaseDatos.ExecuteNonQuery("UPDATE Film SET Ruta='" & Path.GetDirectoryName(myFile).Replace("\","\\") & "' WHERE RowId=" & myRow(0)("RowId").ToString)
+                            BaseDatos.ExecuteNonQuery("INSERT INTO film (filename,name,ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "',NOW())")
+                        ElseIf (IsDBNull(myRow(0)("ruta")) OrElse myRow(0)("ruta").ToString <> Path.GetDirectoryName(myFile)) Then
+                            BaseDatos.ExecuteNonQuery("UPDATE film SET ruta='" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "' WHERE id=" & myRow(0)("id").ToString)
                         End If
                     Next
-                    sql &= " WHERE Id IN ('" & If(myFiles.Length=1,Path.GetFileName(myFiles(0)),myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')"
+                    sql &= " WHERE Filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')"
                 Else
                     sql &= " WHERE 1<>1"
                 End If
             End If
             If (uxchkPendientes.CheckState = CheckState.Checked) Then
-                sql &= " AND (LENGTH(Link) = 0 OR Rating IS NULL OR Rating = 0)"
+                sql &= " AND (LENGTH(imdb_id) = 0 OR imdb_rating IS NULL OR imdb_rating = 0)"
             ElseIf (uxchkPendientes.CheckState = CheckState.Indeterminate) Then
-                sql &= " AND NOT (LENGTH(Link) = 0 OR Rating IS NULL OR Rating = 0)"
+                sql &= " AND NOT (LENGTH(imdb_id) = 0 OR imdb_rating IS NULL OR imdb_rating = 0)"
             End If
-            If (uxchkDuplicados.Checked) Then sql &= " AND Duplicados > 1"
-            If (uxtxtBuscar.Text.Length > 0) Then sql &= " AND CONCAT(Id ,' ',NAME,' ',IFNULL(Link,'')) LIKE '%" & uxtxtBuscar.Text & "%'"
-            Return BaseDatos.Select(sql & " ORDER BY Rating DESC,RatingCount DESC, Id")
+            If (uxchkDuplicados.Checked) Then sql &= " AND duplicados > 1"
+            If (uxtxtBuscar.Text.Length > 0) Then sql &= " AND CONCAT(filename ,' ',name,' ',IFNULL(imdb_id,'')) LIKE '%" & uxtxtBuscar.Text & "%'"
+            Return BaseDatos.Select(sql & " ORDER BY imdb_rating DESC, imdb_ratingcount DESC, Id")
         Catch ex As Exception
             Errores("CargarTabla: " & ex.Message)
             Return New DataTable
@@ -176,9 +175,9 @@ Public Class MainForm
                 Dim myTabla As DataTable = CargarTabla()
                 uxgrd.DataSource = myTabla
                 Dim NumTotal As Integer
-                If (myTabla.Rows.Count > 0) Then NumTotal = CInt(myTabla.Rows(0)("Total"))
+                If (myTabla.Rows.Count > 0) Then NumTotal = CInt(myTabla.Rows(0)("total"))
                 media = CalculaMediaRating()                'Recalcula la media
-                Dim myTableMedia As DataTable = BaseDatos.Select("select sum(case when rating>0 and duplicados>0 then rating/duplicados else 0 end)/sum(case when rating>0 and duplicados>0 then 1/duplicados else 0 end) as media from vw_film")
+                Dim myTableMedia As DataTable = BaseDatos.Select("SELECT SUM(CASE WHEN imdb_rating>0 AND duplicados>0 THEN imdb_rating/duplicados ELSE 0 END)/SUM(CASE WHEN imdb_rating>0 AND duplicados>0 THEN 1/duplicados ELSE 0 END) AS media FROM vw_film")
                 uxlblRegistros.Text = String.Format("Videos: {0} de {1} | Media Rating: {2:N2} de {3:N2}", myTabla.Rows.Count, NumTotal, media, myTableMedia.Rows(0)("media"))
             End If
 
@@ -194,12 +193,12 @@ Public Class MainForm
                     row.DefaultCellStyle.BackColor = Nothing
                 End If
                 If (uxchkVerTodo.Checked) Then
-                    Dim sFile As String = (From f In sMRUFiles Where f.Contains(row.Cells(uxColumnId.Index).Value.ToString)).FirstOrDefault
+                    Dim sFile As String = (From f In sMRUFiles Where f.Contains(row.Cells(uxColumnFilename.Index).Value.ToString)).FirstOrDefault
                     If (Not String.IsNullOrEmpty(sFile)) Then
                         'row.Cells(uxColumnId.Index).Style.Font = New Font(uxgrd.DefaultCellStyle.Font, FontStyle.Bold)
-                        row.Cells(uxColumnId.Index).Style.BackColor = Color.Black
-                        row.Cells(uxColumnId.Index).Style.ForeColor = Color.WhiteSmoke
-                        row.Cells(uxColumnId.Index).ToolTipText = sFile
+                        row.Cells(uxColumnFilename.Index).Style.BackColor = Color.Black
+                        row.Cells(uxColumnFilename.Index).Style.ForeColor = Color.WhiteSmoke
+                        row.Cells(uxColumnFilename.Index).ToolTipText = sFile
                     End If
                 End If
             Next
@@ -243,9 +242,9 @@ Public Class MainForm
         Try
             If (uxgrd.DataSource IsNot Nothing) Then
                 For Each row As DataRow In TryCast(uxgrd.DataSource, DataTable).Rows
-                    If (CInt(row("Duplicados")) > 0 AndAlso IsNumeric(row(uxColumnRating.DataPropertyName)) AndAlso CDec(row(uxColumnRating.DataPropertyName)) > 0) Then
-                        numRatings += CDec(1 / CInt(row("Duplicados")))
-                        sumRatings += CDec(row(uxColumnRating.DataPropertyName)) / CInt(row("Duplicados"))
+                    If (CInt(row("duplicados")) > 0 AndAlso IsNumeric(row(uxColumnRating.DataPropertyName)) AndAlso CDec(row(uxColumnRating.DataPropertyName)) > 0) Then
+                        numRatings += CDec(1 / CInt(row("duplicados")))
+                        sumRatings += CDec(row(uxColumnRating.DataPropertyName)) / CInt(row("duplicados"))
                     End If
                 Next
                 media = CDec(IIf(numRatings > 0, sumRatings / numRatings, 0))
@@ -299,43 +298,50 @@ Public Class MainForm
         Dim myRow As DataRow = TryCast(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
         Dim myParam As MySqlClient.MySqlParameter = Nothing
         If (uxgrd.IsCurrentRowDirty) Then
-            Dim sql = "UPDATE Film SET "
+            Dim sql = "UPDATE film SET "
             Select Case e.ColumnIndex
                 Case uxColumnName.Index
-                    sql &= "Name='" & BaseDatos.QuitaComilla(myRow(uxColumnName.DataPropertyName).ToString) & "'"
-                Case uxColumnLink.Index
-                    Dim url As String = Regex.Replace(myRow(uxColumnLink.DataPropertyName).ToString, "(.+/).+$", "$1")
+                    sql &= "name='" & BaseDatos.QuitaComilla(myRow(uxColumnName.DataPropertyName).ToString) & "'"
+                Case uxColumnImdb.Index
+                    Dim url As String = Regex.Replace(myRow(uxColumnImdb.DataPropertyName).ToString, "(.+/).+$", "$1")
                     If (CheckURLFormat(url)) Then
                         Dim sourceString As String = GetHtml(url)
                         If (Not String.IsNullOrEmpty(sourceString)) Then
-                            myRow(uxColumnLink.DataPropertyName) = url
-                            sql &= "Link='" & url & "'"
-                            myRow("html") = 1
-                            sql &= ",html=@html"
-                            myParam = New MySqlClient.MySqlParameter("@html", CompressString(sourceString))
+                            myRow(uxColumnImdb.DataPropertyName) = Split(url, "/c")(4)
+                            sql &= "imdb_id='" & myRow(uxColumnImdb.DataPropertyName).ToString & "'"
+                            myRow("tiene_html") = 1
+                            sql &= ",imdb_html=@imdb_html"
+                            myParam = New MySqlClient.MySqlParameter("@imdb_html", CompressString(sourceString))
                             Dim Rating As Decimal = GetRating(sourceString)
                             myRow(uxColumnRating.DataPropertyName) = Rating
-                            sql &= ",Rating=" & Rating
+                            sql &= ",imdb_rating=" & Rating
                             Dim RatingCount As Integer = GetRatingCount(sourceString)
                             myRow(uxColumnRatingCount.DataPropertyName) = RatingCount
-                            sql &= ",RatingCount=" & RatingCount
+                            sql &= ",imdb_ratingcount=" & RatingCount
                         End If
                     Else
                         If (MsgBox("Eliminar los datos IMDB de la linea?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes) Then
-                            sql &= "Link=NULL,html=NULL,Rating=NULL,RatingCount=NULL"
-                            myRow("html") = 0
+                            sql &= "imdb_id=NULL,imdb_html=NULL,imdb_rating=NULL,imdb_ratingcount=NULL"
+                            myRow("tiene_html") = 0
                             myRow(uxColumnRating.DataPropertyName) = 0
                         Else
                             Exit Sub
                         End If
                     End If
                 Case uxColumnRating.Index
-                    sql &= "Rating=" & IIf(IsNumeric(myRow(uxColumnRating.DataPropertyName)), myRow(uxColumnRating.DataPropertyName), 0).ToString
+                    sql &= "imdb_rating=" & IIf(IsNumeric(myRow(uxColumnRating.DataPropertyName)), myRow(uxColumnRating.DataPropertyName), 0).ToString
                 Case uxColumnRatingCount.Index
-                    sql &= "RatingCount=" & IIf(IsNumeric(myRow(uxColumnRatingCount.DataPropertyName)), myRow(uxColumnRatingCount.DataPropertyName), 0).ToString
+                    sql &= "imdb_ratingcount=" & IIf(IsNumeric(myRow(uxColumnRatingCount.DataPropertyName)), myRow(uxColumnRatingCount.DataPropertyName), 0).ToString
             End Select
-            sql &= " WHERE Rowid=" & myRow("Rowid").ToString
+            sql &= " WHERE id=" & myRow("id").ToString
             BaseDatos.ExecuteNonQuery(sql, myParam)
+            'Updateamos la info de Omdb Api
+            If (e.ColumnIndex = uxColumnImdb.Index) Then
+                If (Omdb.cargar(CInt(myRow("id")))) Then
+                    myRow("tiene_omdb") = 1
+                End If
+            End If
+            '----
             myRow.AcceptChanges()
         End If
     End Sub
@@ -344,35 +350,40 @@ Public Class MainForm
         e.Cancel = True
     End Sub
 
-    Private Sub uxgrd_CellValueNeeded(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellValueEventArgs) Handles uxgrd.CellValueNeeded
-        If (e.ColumnIndex = uxColumnGo.Index) Then
-            If (CBool(CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row("html"))) Then
-                e.Value = Me.Icon
-            Else
-                e.Value = New Bitmap(32, 32)
-            End If
-        End If
+    Private Sub uxgrd_CellValueNeeded(ByVal sender As Object, ByVal e As DataGridViewCellValueEventArgs) Handles uxgrd.CellValueNeeded
+        Select Case e.ColumnIndex
+            Case uxColumnImdbGo.Index
+                If (CBool(CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row("tiene_html"))) Then
+                    e.Value = Me.Icon
+                Else
+                    e.Value = New Bitmap(32, 32)
+                End If
+            Case uxColumnInfo.Index
+                If (CBool(CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row("tiene_omdb"))) Then
+                    e.Value = My.Resources.informacion
+                Else
+                    e.Value = New Bitmap(32, 32)
+                End If
+        End Select
     End Sub
 
-    Private Sub uxgrd_CellMouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellMouseEventArgs) Handles uxgrd.CellMouseClick
+    Private Sub uxgrd_CellMouseClick(ByVal sender As Object, ByVal e As DataGridViewCellMouseEventArgs) Handles uxgrd.CellMouseClick
         Dim url As String
         Try
             If (e.RowIndex >= 0) Then
                 Select Case e.ColumnIndex
-                    Case uxColumnId.Index   'Buscamos los datos en OmdbApi
-
+                    Case uxColumnInfo.Index   'Mostramos los datos en OmdbApi
                         Dim myRow As DataRow = CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
-                        If (CBool(myRow("html"))) Then
-                            url = uxgrd.Rows(e.RowIndex).Cells(uxColumnLink.Name).Value.ToString
-                            Dim frmDetalle As New Omdb
-                            frmDetalle.mostrar(url.Split("/"c)(4))
+                        If (myRow IsNot Nothing AndAlso CBool(myRow("tiene_html"))) Then
+                            If (Omdb.mostrar(CInt(myRow("id")))) Then
+                                myRow("tiene_omdb") = 1
+                            End If
                         End If
-
-                    Case uxColumnGo.Index       'Columna Ir a la página del enlace (IMDB)                        
+                    Case uxColumnImdbGo.Index       'Columna Ir a la página del enlace (IMDB)                        
                         If (e.Button = MouseButtons.Middle) Then
                             Dim myRow As DataRow = CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
-                            If (CBool(myRow("html"))) Then
-                                Dim myTable As DataTable = BaseDatos.Select("SELECT html FROM film WHERE RowId=" & myRow("RowId").ToString)
+                            If (CBool(myRow("tiene_html"))) Then
+                                Dim myTable As DataTable = BaseDatos.Select("SELECT imdb_html FROM film WHERE id=" & myRow("id").ToString)
                                 If (myTable.Rows.Count > 0) Then
                                     Dim source As String = DecompressString(CType(myTable.Rows(0)(0), Byte()))
                                     If (source <> WebBrowser.source) Then
@@ -380,20 +391,19 @@ Public Class MainForm
                                     Else
                                         WebBrowser.Close()
                                     End If
-
                                 End If
                             End If
                         Else
-                            url = uxgrd.Rows(e.RowIndex).Cells(uxColumnLink.Name).Value.ToString
-                            If (CheckURLFormat(url)) Then Diagnostics.Process.Start(url)
+                            url = "http://www.imdb.com/title/" & uxgrd.Rows(e.RowIndex).Cells(uxColumnImdb.Name).Value.ToString
+                            If (CheckURLFormat(url)) Then Process.Start(url)
                         End If
                     Case uxColumnFind.Index     'Columna Buscar en la página de (IMDB)
-                        Diagnostics.Process.Start(My.Settings.urlImdb.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
+                        Process.Start(My.Settings.urlImdb.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
                     Case uxColumnSub.Index      'Columna Subtitulos en (SUBDIVX)
-                        Diagnostics.Process.Start(My.Settings.urlSubdivx.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
+                        Process.Start(My.Settings.urlSubdivx.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
                     Case uxColumnVer.Index
-                        url = Path.Combine(My.Settings.LastFolder, uxgrd.Rows(e.RowIndex).Cells(uxColumnId.Name).Value.ToString)
-                        If (File.Exists(url)) Then Diagnostics.Process.Start(url)
+                        url = Path.Combine(My.Settings.LastFolder, uxgrd.Rows(e.RowIndex).Cells(uxColumnFilename.Name).Value.ToString)
+                        If (File.Exists(url)) Then Process.Start(url)
                 End Select
             End If
         Catch ex As Exception
@@ -405,8 +415,8 @@ Public Class MainForm
         Try
             Dim myRow As DataRow = TryCast(uxgrd.CurrentRow.DataBoundItem, DataRowView).Row
             If (e.KeyCode = Keys.Delete Or e.KeyCode = Keys.Back) Then
-                If (MsgBox("Borrar " & myRow(uxColumnId.DataPropertyName).ToString, MsgBoxStyle.OkCancel, "BORRAR") = MsgBoxResult.Ok) Then
-                    BaseDatos.ExecuteNonQuery("DELETE FROM Film WHERE Rowid=" & myRow("Rowid").ToString)
+                If (MsgBox("Borrar " & myRow(uxColumnFilename.DataPropertyName).ToString, MsgBoxStyle.OkCancel, "BORRAR") = MsgBoxResult.Ok) Then
+                    BaseDatos.ExecuteNonQuery("DELETE FROM film WHERE id=" & myRow("id").ToString)
                     myRow.Delete()
                 End If
             End If
@@ -420,8 +430,8 @@ Public Class MainForm
         Try
             If (e.RowIndex >= 0) Then
                 Select Case e.ColumnIndex
-                    Case uxColumnGo.Index       'Columna Ir a la página del enlace (IMDB)
-                        url = uxgrd.Rows(e.RowIndex).Cells(uxColumnLink.Name).Value.ToString
+                    Case uxColumnImdbGo.Index       'Columna Ir a la página del enlace (IMDB)
+                        url = uxgrd.Rows(e.RowIndex).Cells(uxColumnImdb.Name).Value.ToString
                         If (CheckURLFormat(url)) Then Diagnostics.Process.Start(url)
                 End Select
             End If
@@ -431,7 +441,7 @@ Public Class MainForm
     End Sub
 
     Private Sub uxgrd_CellMouseDown(sender As Object, e As DataGridViewCellMouseEventArgs) Handles uxgrd.CellMouseDown
-        If (e.ColumnIndex <> uxColumnGo.Index) Then WebBrowser.Close()
+        If (e.ColumnIndex <> uxColumnImdbGo.Index) Then WebBrowser.Close()
     End Sub
 
 #End Region
@@ -473,9 +483,9 @@ Public Class MainForm
             For Each myGridRow As DataGridViewRow In gridRows
                 Me.Text = String.Format("IMDB. Actualizando registro {0} de {1}", index, gridRows.Count)
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
-                Dim str As String = SplitWords(myRow(uxColumnId.DataPropertyName).ToString)
+                Dim str As String = SplitWords(myRow(uxColumnFilename.DataPropertyName).ToString)
                 myRow(uxColumnName.DataPropertyName) = str
-                BaseDatos.ExecuteNonQuery("UPDATE Film SET Name='" & BaseDatos.QuitaComilla(str) & "' WHERE Rowid=" & myRow("RowId").ToString)
+                BaseDatos.ExecuteNonQuery("UPDATE film SET name='" & BaseDatos.QuitaComilla(str) & "' WHERE id=" & myRow("id").ToString)
                 myRow.AcceptChanges()
                 index += 1
             Next
@@ -494,23 +504,23 @@ Public Class MainForm
             For Each myGridRow As DataGridViewRow In gridRows
                 Me.Text = String.Format("IMDB. Actualizando registro {0} de {1}", index, gridRows.Count)
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
-                Dim url As String = myRow(uxColumnLink.DataPropertyName).ToString
+                Dim url As String = myRow(uxColumnImdb.DataPropertyName).ToString
                 If (CheckURLFormat(url)) Then
                     Dim sourceString As String = GetHtml(url)
                     If (Not String.IsNullOrEmpty(sourceString)) Then
-                        myRow("html") = 1
-                        Dim sql As String = "UPDATE Film SET html=@html"
+                        myRow("tiene_html") = 1
+                        Dim sql As String = "UPDATE film SET imdb_html=@imdb_html"
                         Dim rating As Decimal = GetRating(sourceString)
                         If (rating > 0 AndAlso (IsDBNull(myRow(uxColumnRating.DataPropertyName)) OrElse rating <> CDec(myRow(uxColumnRating.DataPropertyName)))) Then
                             myRow(uxColumnRating.DataPropertyName) = rating
-                            sql &= ",Rating=" & rating
+                            sql &= ",imdb_rating=" & rating
                         End If
                         Dim ratingCount As Integer = GetRatingCount(sourceString)
                         If (ratingCount > 0 AndAlso (IsDBNull(myRow(uxColumnRatingCount.DataPropertyName)) OrElse ratingCount <> CInt(myRow(uxColumnRatingCount.DataPropertyName)))) Then
                             myRow(uxColumnRatingCount.DataPropertyName) = ratingCount
-                            sql &= ",RatingCount=" & ratingCount
+                            sql &= ",imdb_ratingcount=" & ratingCount
                         End If
-                        BaseDatos.ExecuteNonQuery(sql & " WHERE Rowid=" & myRow("RowId").ToString, New MySqlClient.MySqlParameter("@html", CompressString(sourceString)))
+                        BaseDatos.ExecuteNonQuery(sql & " WHERE id=" & myRow("id").ToString, New MySqlClient.MySqlParameter("@imdb_html", CompressString(sourceString)))
                         myRow.AcceptChanges()
                     End If
                 End If
@@ -518,6 +528,27 @@ Public Class MainForm
             Next
         Catch ex As Exception
             Errores("uxMenuActualizarPuntuaciones_Click:" & ex.Message)
+        End Try
+        Me.Text = "IMDB"
+        Me.Cursor = Cursors.Default
+    End Sub
+
+    Private Sub uxMenuImportarOMDB_Click(sender As Object, e As EventArgs) Handles uxMenuImportarOMDBTodos.Click, uxMenuImportarOMDBSeleccionados.Click
+        Try
+            Me.Cursor = Cursors.WaitCursor
+            Dim index As Integer = 1
+            Dim gridRows As IEnumerable(Of DataGridViewRow) = CType(IIf(sender Is uxMenuImportarOMDBSeleccionados, uxgrd.SelectedRows.Cast(Of DataGridViewRow), uxgrd.Rows.Cast(Of DataGridViewRow)), IEnumerable(Of DataGridViewRow))
+            For Each myGridRow As DataGridViewRow In gridRows
+                Me.Text = String.Format("OMDB. Importando registro {0} de {1}", index, gridRows.Count)
+                Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
+                If (Omdb.cargar(CInt((myRow("id"))))) Then
+                    myRow("tiene_omdb") = 1
+                End If
+                index += 1
+            Next
+            uxgrd.Refresh()
+        Catch ex As Exception
+            Errores("uxMenuImportarOMDB_Click:" & ex.Message)
         End Try
         Me.Text = "IMDB"
         Me.Cursor = Cursors.Default

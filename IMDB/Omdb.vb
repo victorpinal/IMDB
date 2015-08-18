@@ -1,17 +1,62 @@
 ﻿Option Strict Off
+Imports System.Net
+Imports MySql.Data.MySqlClient
 
 Public Class Omdb
 
-    Public Sub mostrar(id As String)
-        Dim response As String = New System.Net.WebClient().DownloadString("http://www.omdbapi.com/?i=" & id & "&plot=full&r=json")
-        If (Not String.IsNullOrEmpty(response)) Then
-            Dim j As Object = New System.Web.Script.Serialization.JavaScriptSerializer().Deserialize(Of Object)(response)
-            uxlblTitulo.Text = j("Title")
-            uxlblAño.Text = j("Year")
-            uxlblDescripcion.Text = j("Plot")
-            Me.Show()
-        End If
-    End Sub
+    Public Function cargar(id As Integer) As Boolean
+        cargar = False
+        Try
+            Dim url As String = BaseDatos.Select("SELECT imdb_id FROM film WHERE id=@id", New MySqlParameter("@id", id)).Rows(0)("imdb_id").ToString
+            If (Not String.IsNullOrWhiteSpace(url)) Then
+                Dim response As String = New WebClient().DownloadString("http://www.omdbapi.com/?i=" & url & "&plot=full&r=json&tomatoes=true")
+                If (Not String.IsNullOrEmpty(response)) Then
+                    Dim j As Object = New Web.Script.Serialization.JavaScriptSerializer().Deserialize(Of Object)(response)
+                    Dim imagen As New IO.MemoryStream
+                    Try
+                        CType(WebRequest.Create(j("Poster")), HttpWebRequest).GetResponse().GetResponseStream.CopyTo(imagen)
+                    Catch ex As Exception
+                    End Try
+                    BaseDatos.ExecuteNonQuery("UPDATE film SET omdb=@omdb,picture=@picture WHERE id=@id", {New MySqlParameter("@omdb", response),
+                                              New MySqlParameter("@picture", If(imagen.Length = 0, DBNull.Value, imagen.ToArray)),
+                                              New MySqlParameter("@id", id)})
+                    cargar = True
+                End If
+            End If
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        End Try
+    End Function
+
+    Public Function mostrar(id As Integer) As Boolean
+        mostrar = False
+        Try
+            If (BaseDatos.Select("SELECT id FROM film WHERE id=@id AND ifnull(omdb,'') <> ''", New MySqlParameter("@id", id)).Rows.Count = 0) Then
+                cargar(id)
+            End If
+            Dim myRow As DataRow = BaseDatos.Select("SELECT omdb,picture FROM film WHERE id=@id", New MySqlParameter("@id", id)).Rows(0)
+            If (Not IsDBNull(myRow("omdb"))) Then
+                Dim j As Object = New Web.Script.Serialization.JavaScriptSerializer().Deserialize(Of Object)(myRow("omdb").ToString)
+                uxlblTitle.Text = j("Title")
+                uxlblAño.Text = j("Year")
+                uxlblRuntime.Text = j("Runtime")
+                uxlblGenre.Text = j("Genre")
+                uxlblDirector.Text = "Director : " & j("Director")
+                uxlblActors.Text = "Actores : " & j("Actors")
+                uxlblDescripcion.Text = j("Plot")
+                If (IsDBNull(myRow("picture"))) Then
+                    uxpcb.Image = Nothing
+                Else
+                    uxpcb.Image = Image.FromStream(New IO.MemoryStream(CType(myRow("picture"), Byte())))
+                End If
+                Me.Show()
+                Me.SetDesktopLocation(MousePosition.X, MousePosition.Y)
+                mostrar = True
+            End If
+        Catch ex As Exception
+            MsgBox(ex.Message)
+        End Try
+    End Function
 
     Private Sub Me_LostFocus(sender As Object, e As EventArgs) Handles Me.LostFocus
         Me.Hide()

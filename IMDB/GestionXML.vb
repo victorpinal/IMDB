@@ -1,4 +1,6 @@
-﻿Public Class GestionXML
+﻿Imports MySql.Data.MySqlClient
+
+Public Class GestionXML
 
     Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OK_Button.Click
         Me.DialogResult = System.Windows.Forms.DialogResult.OK
@@ -17,26 +19,33 @@
                 Dim DS As New DataSet
                 DS.ReadXml(uxdlgOpen.FileName)
                 Dim myTableXML As DataTable = DS.Tables(0)
-                Dim myTableBD As DataTable = BaseDatos.Select("SELECT * FROM Film")
+                Dim myTableBD As DataTable = BaseDatos.Select("SELECT filename FROM Film")
 
                 'Metemos registros nuevos
                 For Each myRow As DataRow In myTableXML.Rows
-                    If (myTableBD.Select("Id='" & BaseDatos.QuitaComilla(myRow("Id").ToString) & "'").Length = 0) Then
-                        BaseDatos.ExecuteNonQuery("INSERT INTO Film (Id,Name,Ruta,Link,Rating,RatingCount) VALUES ('" & _
-                                                  BaseDatos.QuitaComilla(myRow("Id").ToString) & "','" & _
-                                                  BaseDatos.QuitaComilla(myRow("Name").ToString) & "','" & _
-                                                  BaseDatos.QuitaComilla(myRow("Ruta").ToString) & "','" & _
-                                                  BaseDatos.QuitaComilla(myRow("Link").ToString) & "'," & _
-                                                  myRow("Rating").ToString & "," & _
-                                                  myRow("RatingCount").ToString & ")")
+                    If (myTableBD.Select("filename='" & BaseDatos.QuitaComilla(myRow("filename").ToString) & "'").Length = 0) Then
+                        BaseDatos.ExecuteNonQuery("INSERT INTO Film (filename, name, imdb_id, imdb_rating, imdb_ratingcount, omdb, ruta, fecha_alta) " &
+                                                  "VALUES (@filename, @name, @imdb_id, @imdb_rating, @imdb_ratingcount, @omdb, @ruta, @fecha_alta)",
+                                                  {New MySqlParameter("@filename", myRow("filename")),
+                                                  New MySqlParameter("@name", myRow("name")),
+                                                  New MySqlParameter("@imdb_id", myRow("imdb_id")),
+                                                  New MySqlParameter("@imdb_rating", myRow("imdb_rating")),
+                                                  New MySqlParameter("@imdb_ratingcount", myRow("imdb_ratingcount")),
+                                                  New MySqlParameter("@omdb", myRow("omdb")),
+                                                  New MySqlParameter("@ruta", myRow("ruta")),
+                                                  New MySqlParameter("@fecha_alta", myRow("fecha_alta"))})
                     Else
-                        BaseDatos.ExecuteNonQuery("UPDATE Film SET " & _
-                                                  "Name='" & BaseDatos.QuitaComilla(myRow("Name").ToString) & "'," & _
-                                                  "Ruta='" & BaseDatos.QuitaComilla(myRow("Ruta").ToString) & "'," & _
-                                                  "Link='" & BaseDatos.QuitaComilla(myRow("Link").ToString) & "'," & _
-                                                  "Rating=" & myRow("Rating").ToString & "," & _
-                                                  "RatingCount=" & myRow("RatingCount").ToString & _
-                                                  " WHERE Id='" & BaseDatos.QuitaComilla(myRow("Id").ToString) & "'")
+                        BaseDatos.ExecuteNonQuery("UPDATE Film SET " &
+                                                  "name=@name, imdb_id=@imdb_id, imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount, omdb=@omdb, ruta=@ruta, fecha_alta=@fecha_alta " &
+                                                  "WHERE filename=@filename",
+                                                  {New MySqlParameter("@filename", myRow("filename")),
+                                                  New MySqlParameter("@name", myRow("name")),
+                                                  New MySqlParameter("@imdb_id", myRow("imdb_id")),
+                                                  New MySqlParameter("@imdb_rating", myRow("imdb_rating")),
+                                                  New MySqlParameter("@imdb_ratingcount", myRow("imdb_ratingcount")),
+                                                  New MySqlParameter("@omdb", myRow("omdb")),
+                                                  New MySqlParameter("@ruta", myRow("ruta")),
+                                                  New MySqlParameter("@fecha_alta", myRow("fecha_alta"))})
                     End If
                 Next
 
@@ -51,7 +60,7 @@
         Try
             uxdlgSave.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             If (uxdlgSave.ShowDialog = DialogResult.OK) Then
-                Dim myTableBD As DataTable = BaseDatos.Select("SELECT Rowid,Id,Name,Ruta,Link,Rating,RatingCount,fecha_alta FROM Film")
+                Dim myTableBD As DataTable = BaseDatos.Select("SELECT id,filename,name,imdb_id,imdb_rating,imdb_ratingcount,omdb,ruta,fecha_alta FROM Film")
                 myTableBD.WriteXml(uxdlgSave.FileName) 'Guardamos los datos del grid en un xml      
                 uxlblEstadoGuardado.Text = "Fichero " & uxdlgSave.FileName & " volcado"
             End If

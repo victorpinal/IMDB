@@ -232,6 +232,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="imdb.ico" />
+    <None Include="Resources\informacion.png" />
     <None Include="Resources\xml.png" />
     <None Include="Resources\carpeta.png" />
   </ItemGroup>

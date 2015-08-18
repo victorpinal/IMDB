@@ -39,11 +39,31 @@ Public Class BaseDatos
     ''' <param name="Sql"></param>
     ''' <returns></returns>
     ''' <remarks></remarks>
-    Shared Function [Select](Sql As String) As DataTable
+    Shared Function [Select](Sql As String, Optional Param As MySqlClient.MySqlParameter = Nothing) As DataTable
         Dim myTable As New DataTable
         Try
             myConection.Open()
             myCommand.CommandText = Sql
+            myCommand.Parameters.Clear()
+            If (Param IsNot Nothing) Then myCommand.Parameters.Add(Param)
+            myTable.Load(myCommand.ExecuteReader)
+            myConection.Close()
+        Catch ex As Exception
+            Errores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
+        End Try
+        Return myTable
+    End Function
+
+    Shared Function [Select](Sql As String, Param() As MySqlClient.MySqlParameter) As DataTable
+        Dim myTable As New DataTable
+        Try
+            myConection.Open()
+            myCommand.CommandText = Sql
+            myCommand.Parameters.Clear()
+
+            For Each myParam As MySqlClient.MySqlParameter In Param
+                myCommand.Parameters.Add(myParam)
+            Next
             myTable.Load(myCommand.ExecuteReader)
             myConection.Close()
         Catch ex As Exception
@@ -65,6 +85,22 @@ Public Class BaseDatos
             myCommand.CommandText = Sql
             myCommand.Parameters.Clear
             If (Param IsNot Nothing) Then myCommand.Parameters.Add(Param)
+            ExecuteNonQuery = myCommand.ExecuteNonQuery
+            myConection.Close()
+        Catch ex As Exception
+            Errores("BaseDatos:ExecuteNonQuery:" & Sql & ":" & ex.Message)
+        End Try
+    End Function
+
+    Shared Function ExecuteNonQuery(Sql As String, Param() As MySqlClient.MySqlParameter) As Integer
+        ExecuteNonQuery = 0
+        Try
+            myConection.Open()
+            myCommand.CommandText = Sql
+            myCommand.Parameters.Clear()
+            For Each myParam As MySqlClient.MySqlParameter In Param
+                myCommand.Parameters.Add(myParam)
+            Next
             ExecuteNonQuery = myCommand.ExecuteNonQuery
             myConection.Close()
         Catch ex As Exception
