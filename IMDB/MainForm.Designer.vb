@@ -28,6 +28,17 @@ Partial Class MainForm
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.uxgrd = New System.Windows.Forms.DataGridView()
+        Me.uxColumnVer = New System.Windows.Forms.DataGridViewImageColumn()
+        Me.uxColumnFilename = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.uxColumnInfo = New System.Windows.Forms.DataGridViewImageColumn()
+        Me.uxColumnRuta = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.uxColumnName = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.uxColumnFind = New System.Windows.Forms.DataGridViewImageColumn()
+        Me.uxColumnSub = New System.Windows.Forms.DataGridViewImageColumn()
+        Me.uxColumnImdb = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.uxColumnImdbGo = New System.Windows.Forms.DataGridViewImageColumn()
+        Me.uxColumnRating = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.uxColumnRatingCount = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.uxMenuGrid = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.uxMenuFormatearNombres = New System.Windows.Forms.ToolStripMenuItem()
         Me.uxMenuFormatearNombresSeleccionados = New System.Windows.Forms.ToolStripMenuItem()
@@ -51,7 +62,7 @@ Partial Class MainForm
         Me.uxtxtBuscar = New System.Windows.Forms.TextBox()
         Me.uxchkVerMRU = New System.Windows.Forms.CheckBox()
         Me.uxchkVerTodo = New System.Windows.Forms.CheckBox()
-        Me.uxchkPendientes = New System.Windows.Forms.CheckBox()
+        Me.uxchkPendientesIMDB = New System.Windows.Forms.CheckBox()
         Me.uxchkDuplicados = New System.Windows.Forms.CheckBox()
         Me.uxbtnConfiguracion = New System.Windows.Forms.Button()
         Me.uxbtnXML = New System.Windows.Forms.Button()
@@ -60,17 +71,7 @@ Partial Class MainForm
         Me.DataGridViewImageColumn2 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.DataGridViewImageColumn3 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.uxError = New System.Windows.Forms.ErrorProvider(Me.components)
-        Me.uxColumnVer = New System.Windows.Forms.DataGridViewImageColumn()
-        Me.uxColumnFilename = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.uxColumnInfo = New System.Windows.Forms.DataGridViewImageColumn()
-        Me.uxColumnRuta = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.uxColumnName = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.uxColumnFind = New System.Windows.Forms.DataGridViewImageColumn()
-        Me.uxColumnSub = New System.Windows.Forms.DataGridViewImageColumn()
-        Me.uxColumnImdb = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.uxColumnImdbGo = New System.Windows.Forms.DataGridViewImageColumn()
-        Me.uxColumnRating = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.uxColumnRatingCount = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.uxchkPendientesOMDB = New System.Windows.Forms.CheckBox()
         CType(Me.uxgrd, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.uxMenuGrid.SuspendLayout()
         Me.uxpnlAbajo.SuspendLayout()
@@ -102,6 +103,104 @@ Partial Class MainForm
         Me.uxgrd.Size = New System.Drawing.Size(1024, 599)
         Me.uxgrd.TabIndex = 0
         Me.uxgrd.VirtualMode = True
+        '
+        'uxColumnVer
+        '
+        Me.uxColumnVer.HeaderText = "Ver"
+        Me.uxColumnVer.Image = CType(resources.GetObject("uxColumnVer.Image"), System.Drawing.Image)
+        Me.uxColumnVer.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
+        Me.uxColumnVer.Name = "uxColumnVer"
+        Me.uxColumnVer.ReadOnly = True
+        Me.uxColumnVer.Width = 29
+        '
+        'uxColumnFilename
+        '
+        Me.uxColumnFilename.DataPropertyName = "filename"
+        Me.uxColumnFilename.HeaderText = "Archivo"
+        Me.uxColumnFilename.Name = "uxColumnFilename"
+        Me.uxColumnFilename.ReadOnly = True
+        Me.uxColumnFilename.Width = 350
+        '
+        'uxColumnInfo
+        '
+        Me.uxColumnInfo.HeaderText = "Info"
+        Me.uxColumnInfo.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
+        Me.uxColumnInfo.Name = "uxColumnInfo"
+        Me.uxColumnInfo.ReadOnly = True
+        Me.uxColumnInfo.Width = 29
+        '
+        'uxColumnRuta
+        '
+        Me.uxColumnRuta.DataPropertyName = "ruta"
+        Me.uxColumnRuta.HeaderText = "Ruta"
+        Me.uxColumnRuta.Name = "uxColumnRuta"
+        Me.uxColumnRuta.ReadOnly = True
+        Me.uxColumnRuta.Width = 150
+        '
+        'uxColumnName
+        '
+        Me.uxColumnName.DataPropertyName = "name"
+        Me.uxColumnName.HeaderText = "Nombre"
+        Me.uxColumnName.Name = "uxColumnName"
+        Me.uxColumnName.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.uxColumnName.Width = 180
+        '
+        'uxColumnFind
+        '
+        Me.uxColumnFind.HeaderText = ""
+        Me.uxColumnFind.Image = CType(resources.GetObject("uxColumnFind.Image"), System.Drawing.Image)
+        Me.uxColumnFind.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
+        Me.uxColumnFind.Name = "uxColumnFind"
+        Me.uxColumnFind.ReadOnly = True
+        Me.uxColumnFind.Width = 29
+        '
+        'uxColumnSub
+        '
+        Me.uxColumnSub.HeaderText = "Sub"
+        Me.uxColumnSub.Image = CType(resources.GetObject("uxColumnSub.Image"), System.Drawing.Image)
+        Me.uxColumnSub.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
+        Me.uxColumnSub.Name = "uxColumnSub"
+        Me.uxColumnSub.ReadOnly = True
+        Me.uxColumnSub.Width = 29
+        '
+        'uxColumnImdb
+        '
+        Me.uxColumnImdb.DataPropertyName = "imdb_id"
+        Me.uxColumnImdb.HeaderText = "Imdb"
+        Me.uxColumnImdb.Name = "uxColumnImdb"
+        Me.uxColumnImdb.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.uxColumnImdb.Width = 60
+        '
+        'uxColumnImdbGo
+        '
+        Me.uxColumnImdbGo.HeaderText = ""
+        Me.uxColumnImdbGo.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
+        Me.uxColumnImdbGo.Name = "uxColumnImdbGo"
+        Me.uxColumnImdbGo.ReadOnly = True
+        Me.uxColumnImdbGo.Width = 29
+        '
+        'uxColumnRating
+        '
+        Me.uxColumnRating.DataPropertyName = "imdb_rating"
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight
+        DataGridViewCellStyle1.Format = "N2"
+        Me.uxColumnRating.DefaultCellStyle = DataGridViewCellStyle1
+        Me.uxColumnRating.HeaderText = "Rating"
+        Me.uxColumnRating.Name = "uxColumnRating"
+        Me.uxColumnRating.ReadOnly = True
+        Me.uxColumnRating.Width = 40
+        '
+        'uxColumnRatingCount
+        '
+        Me.uxColumnRatingCount.DataPropertyName = "imdb_ratingcount"
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight
+        DataGridViewCellStyle2.Format = "N0"
+        DataGridViewCellStyle2.NullValue = Nothing
+        Me.uxColumnRatingCount.DefaultCellStyle = DataGridViewCellStyle2
+        Me.uxColumnRatingCount.HeaderText = "R.Count"
+        Me.uxColumnRatingCount.Name = "uxColumnRatingCount"
+        Me.uxColumnRatingCount.ReadOnly = True
+        Me.uxColumnRatingCount.Width = 55
         '
         'uxMenuGrid
         '
@@ -250,11 +349,12 @@ Partial Class MainForm
         '
         'uxpnlArriba
         '
+        Me.uxpnlArriba.Controls.Add(Me.uxchkPendientesOMDB)
         Me.uxpnlArriba.Controls.Add(Me.uxbtnBorrarTexto)
         Me.uxpnlArriba.Controls.Add(Me.uxtxtBuscar)
         Me.uxpnlArriba.Controls.Add(Me.uxchkVerMRU)
         Me.uxpnlArriba.Controls.Add(Me.uxchkVerTodo)
-        Me.uxpnlArriba.Controls.Add(Me.uxchkPendientes)
+        Me.uxpnlArriba.Controls.Add(Me.uxchkPendientesIMDB)
         Me.uxpnlArriba.Controls.Add(Me.uxchkDuplicados)
         Me.uxpnlArriba.Controls.Add(Me.uxbtnConfiguracion)
         Me.uxpnlArriba.Controls.Add(Me.uxbtnXML)
@@ -268,7 +368,7 @@ Partial Class MainForm
         '
         Me.uxbtnBorrarTexto.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.uxbtnBorrarTexto.Image = Global.IMDB.My.Resources.Resources.close
-        Me.uxbtnBorrarTexto.Location = New System.Drawing.Point(646, 2)
+        Me.uxbtnBorrarTexto.Location = New System.Drawing.Point(549, 2)
         Me.uxbtnBorrarTexto.Name = "uxbtnBorrarTexto"
         Me.uxbtnBorrarTexto.Size = New System.Drawing.Size(23, 24)
         Me.uxbtnBorrarTexto.TabIndex = 7
@@ -282,14 +382,14 @@ Partial Class MainForm
         Me.uxtxtBuscar.Font = New System.Drawing.Font("Consolas", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.uxtxtBuscar.Location = New System.Drawing.Point(3, 3)
         Me.uxtxtBuscar.Name = "uxtxtBuscar"
-        Me.uxtxtBuscar.Size = New System.Drawing.Size(643, 22)
+        Me.uxtxtBuscar.Size = New System.Drawing.Size(546, 22)
         Me.uxtxtBuscar.TabIndex = 0
         '
         'uxchkVerMRU
         '
         Me.uxchkVerMRU.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.uxchkVerMRU.AutoSize = True
-        Me.uxchkVerMRU.Location = New System.Drawing.Point(685, 7)
+        Me.uxchkVerMRU.Location = New System.Drawing.Point(591, 7)
         Me.uxchkVerMRU.Name = "uxchkVerMRU"
         Me.uxchkVerMRU.Size = New System.Drawing.Size(51, 17)
         Me.uxchkVerMRU.TabIndex = 1
@@ -300,25 +400,25 @@ Partial Class MainForm
         '
         Me.uxchkVerTodo.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.uxchkVerTodo.AutoSize = True
-        Me.uxchkVerTodo.Location = New System.Drawing.Point(742, 7)
+        Me.uxchkVerTodo.Location = New System.Drawing.Point(648, 7)
         Me.uxchkVerTodo.Name = "uxchkVerTodo"
         Me.uxchkVerTodo.Size = New System.Drawing.Size(51, 17)
         Me.uxchkVerTodo.TabIndex = 2
         Me.uxchkVerTodo.Text = "Todo"
         Me.uxchkVerTodo.UseVisualStyleBackColor = True
         '
-        'uxchkPendientes
+        'uxchkPendientesIMDB
         '
-        Me.uxchkPendientes.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.uxchkPendientes.AutoSize = True
-        Me.uxchkPendientes.Location = New System.Drawing.Point(799, 7)
-        Me.uxchkPendientes.Name = "uxchkPendientes"
-        Me.uxchkPendientes.Size = New System.Drawing.Size(79, 17)
-        Me.uxchkPendientes.TabIndex = 3
-        Me.uxchkPendientes.Text = "Pendientes"
-        Me.uxchkPendientes.ThreeState = True
-        Me.uxToolTip.SetToolTip(Me.uxchkPendientes, "Visualizar los ficheros duplicados")
-        Me.uxchkPendientes.UseVisualStyleBackColor = True
+        Me.uxchkPendientesIMDB.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.uxchkPendientesIMDB.AutoSize = True
+        Me.uxchkPendientesIMDB.Location = New System.Drawing.Point(700, 7)
+        Me.uxchkPendientesIMDB.Name = "uxchkPendientesIMDB"
+        Me.uxchkPendientesIMDB.Size = New System.Drawing.Size(84, 17)
+        Me.uxchkPendientesIMDB.TabIndex = 3
+        Me.uxchkPendientesIMDB.Text = "Pend. IMDB"
+        Me.uxchkPendientesIMDB.ThreeState = True
+        Me.uxToolTip.SetToolTip(Me.uxchkPendientesIMDB, "Visualizar los ficheros duplicados")
+        Me.uxchkPendientesIMDB.UseVisualStyleBackColor = True
         '
         'uxchkDuplicados
         '
@@ -385,103 +485,18 @@ Partial Class MainForm
         '
         Me.uxError.ContainerControl = Me
         '
-        'uxColumnVer
+        'uxchkPendientesOMDB
         '
-        Me.uxColumnVer.HeaderText = "Ver"
-        Me.uxColumnVer.Image = CType(resources.GetObject("uxColumnVer.Image"), System.Drawing.Image)
-        Me.uxColumnVer.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
-        Me.uxColumnVer.Name = "uxColumnVer"
-        Me.uxColumnVer.ReadOnly = True
-        Me.uxColumnVer.Width = 29
-        '
-        'uxColumnFilename
-        '
-        Me.uxColumnFilename.DataPropertyName = "filename"
-        Me.uxColumnFilename.HeaderText = "Archivo"
-        Me.uxColumnFilename.Name = "uxColumnFilename"
-        Me.uxColumnFilename.ReadOnly = True
-        Me.uxColumnFilename.Width = 350
-        '
-        'uxColumnInfo
-        '
-        Me.uxColumnInfo.HeaderText = "Info"
-        Me.uxColumnInfo.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
-        Me.uxColumnInfo.Name = "uxColumnInfo"
-        Me.uxColumnInfo.ReadOnly = True
-        Me.uxColumnInfo.Width = 29
-        '
-        'uxColumnRuta
-        '
-        Me.uxColumnRuta.DataPropertyName = "ruta"
-        Me.uxColumnRuta.HeaderText = "Ruta"
-        Me.uxColumnRuta.Name = "uxColumnRuta"
-        Me.uxColumnRuta.ReadOnly = True
-        Me.uxColumnRuta.Width = 150
-        '
-        'uxColumnName
-        '
-        Me.uxColumnName.DataPropertyName = "name"
-        Me.uxColumnName.HeaderText = "Nombre"
-        Me.uxColumnName.Name = "uxColumnName"
-        Me.uxColumnName.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.uxColumnName.Width = 180
-        '
-        'uxColumnFind
-        '
-        Me.uxColumnFind.HeaderText = ""
-        Me.uxColumnFind.Image = CType(resources.GetObject("uxColumnFind.Image"), System.Drawing.Image)
-        Me.uxColumnFind.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
-        Me.uxColumnFind.Name = "uxColumnFind"
-        Me.uxColumnFind.ReadOnly = True
-        Me.uxColumnFind.Width = 29
-        '
-        'uxColumnSub
-        '
-        Me.uxColumnSub.HeaderText = "Sub"
-        Me.uxColumnSub.Image = CType(resources.GetObject("uxColumnSub.Image"), System.Drawing.Image)
-        Me.uxColumnSub.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
-        Me.uxColumnSub.Name = "uxColumnSub"
-        Me.uxColumnSub.ReadOnly = True
-        Me.uxColumnSub.Width = 29
-        '
-        'uxColumnImdb
-        '
-        Me.uxColumnImdb.DataPropertyName = "imdb_id"
-        Me.uxColumnImdb.HeaderText = "Imdb"
-        Me.uxColumnImdb.Name = "uxColumnImdb"
-        Me.uxColumnImdb.Resizable = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.uxColumnImdb.Width = 60
-        '
-        'uxColumnImdbGo
-        '
-        Me.uxColumnImdbGo.HeaderText = ""
-        Me.uxColumnImdbGo.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom
-        Me.uxColumnImdbGo.Name = "uxColumnImdbGo"
-        Me.uxColumnImdbGo.ReadOnly = True
-        Me.uxColumnImdbGo.Width = 29
-        '
-        'uxColumnRating
-        '
-        Me.uxColumnRating.DataPropertyName = "imdb_rating"
-        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight
-        DataGridViewCellStyle1.Format = "N2"
-        Me.uxColumnRating.DefaultCellStyle = DataGridViewCellStyle1
-        Me.uxColumnRating.HeaderText = "Rating"
-        Me.uxColumnRating.Name = "uxColumnRating"
-        Me.uxColumnRating.ReadOnly = True
-        Me.uxColumnRating.Width = 40
-        '
-        'uxColumnRatingCount
-        '
-        Me.uxColumnRatingCount.DataPropertyName = "imdb_ratingcount"
-        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight
-        DataGridViewCellStyle2.Format = "N0"
-        DataGridViewCellStyle2.NullValue = Nothing
-        Me.uxColumnRatingCount.DefaultCellStyle = DataGridViewCellStyle2
-        Me.uxColumnRatingCount.HeaderText = "R.Count"
-        Me.uxColumnRatingCount.Name = "uxColumnRatingCount"
-        Me.uxColumnRatingCount.ReadOnly = True
-        Me.uxColumnRatingCount.Width = 55
+        Me.uxchkPendientesOMDB.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.uxchkPendientesOMDB.AutoSize = True
+        Me.uxchkPendientesOMDB.Location = New System.Drawing.Point(789, 7)
+        Me.uxchkPendientesOMDB.Name = "uxchkPendientesOMDB"
+        Me.uxchkPendientesOMDB.Size = New System.Drawing.Size(89, 17)
+        Me.uxchkPendientesOMDB.TabIndex = 8
+        Me.uxchkPendientesOMDB.Text = "Pend. OMDB"
+        Me.uxchkPendientesOMDB.ThreeState = True
+        Me.uxToolTip.SetToolTip(Me.uxchkPendientesOMDB, "Visualizar los ficheros duplicados")
+        Me.uxchkPendientesOMDB.UseVisualStyleBackColor = True
         '
         'MainForm
         '
@@ -522,7 +537,7 @@ Partial Class MainForm
     Friend WithEvents uxbtnVerDirectorio As System.Windows.Forms.Button
     Friend WithEvents uxToolTip As System.Windows.Forms.ToolTip
     Friend WithEvents uxbtnXML As System.Windows.Forms.Button
-    Friend WithEvents uxchkPendientes As System.Windows.Forms.CheckBox
+    Friend WithEvents uxchkPendientesIMDB As System.Windows.Forms.CheckBox
     Friend WithEvents uxchkVerTodo As System.Windows.Forms.CheckBox
     Friend WithEvents uxchkVerMRU As System.Windows.Forms.CheckBox
     Friend WithEvents uxMenuGrid As System.Windows.Forms.ContextMenuStrip
@@ -548,4 +563,5 @@ Partial Class MainForm
     Friend WithEvents uxColumnImdbGo As DataGridViewImageColumn
     Friend WithEvents uxColumnRating As DataGridViewTextBoxColumn
     Friend WithEvents uxColumnRatingCount As DataGridViewTextBoxColumn
+    Friend WithEvents uxchkPendientesOMDB As CheckBox
 End Class

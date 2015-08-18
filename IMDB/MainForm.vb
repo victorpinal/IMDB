@@ -26,7 +26,8 @@ Public Class MainForm
             AddHandler uxbtnBorrarTexto.Click, Sub() uxtxtBuscar.ResetText()
             AddHandler uxchkVerMRU.CheckedChanged, Sub() FiltraYPintaGrid()
             AddHandler uxchkVerTodo.CheckedChanged, Sub() FiltraYPintaGrid()
-            AddHandler uxchkPendientes.CheckStateChanged, Sub() FiltraYPintaGrid()
+            AddHandler uxchkPendientesIMDB.CheckStateChanged, Sub() FiltraYPintaGrid()
+            AddHandler uxchkPendientesOMDB.CheckStateChanged, Sub() FiltraYPintaGrid()
             AddHandler uxchkDuplicados.CheckedChanged, Sub() FiltraYPintaGrid()
             AddHandler uxbtnRefresh.Click, Sub()
                                                FiltraYPintaGrid()
@@ -141,15 +142,20 @@ Public Class MainForm
                             BaseDatos.ExecuteNonQuery("UPDATE film SET ruta='" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "' WHERE id=" & myRow(0)("id").ToString)
                         End If
                     Next
-                    sql &= " WHERE Filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')"
+                    sql &= " WHERE filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')"
                 Else
                     sql &= " WHERE 1<>1"
                 End If
             End If
-            If (uxchkPendientes.CheckState = CheckState.Checked) Then
+            If (uxchkPendientesIMDB.CheckState = CheckState.Checked) Then
                 sql &= " AND (LENGTH(imdb_id) = 0 OR imdb_rating IS NULL OR imdb_rating = 0)"
-            ElseIf (uxchkPendientes.CheckState = CheckState.Indeterminate) Then
+            ElseIf (uxchkPendientesIMDB.CheckState = CheckState.Indeterminate) Then
                 sql &= " AND NOT (LENGTH(imdb_id) = 0 OR imdb_rating IS NULL OR imdb_rating = 0)"
+            End If
+            If (uxchkPendientesOMDB.CheckState = CheckState.Checked) Then
+                sql &= " AND tiene_omdb = 0"
+            ElseIf (uxchkPendientesOMDB.CheckState = CheckState.Indeterminate) Then
+                sql &= " AND tiene_omdb = 1"
             End If
             If (uxchkDuplicados.Checked) Then sql &= " AND duplicados > 1"
             If (uxtxtBuscar.Text.Length > 0) Then sql &= " AND CONCAT(filename ,' ',name,' ',IFNULL(imdb_id,'')) LIKE '%" & uxtxtBuscar.Text & "%'"
@@ -254,6 +260,10 @@ Public Class MainForm
         Return media
     End Function
 
+    Private Function getImdbUrl(id As String) As String
+        If (Not String.IsNullOrEmpty(id)) Then Return "http://www.imdb.com/title/" & id Else Return String.Empty
+    End Function
+
     Private Function CheckURLFormat(url As String) As Boolean
         Return Regex.IsMatch(url, "/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/")
     End Function
@@ -261,7 +271,9 @@ Public Class MainForm
     Private Function GetHtml(url As String) As String
         GetHtml = String.Empty
         Try
-            GetHtml = New System.Net.WebClient().DownloadString(url)
+            Dim wc As New Net.WebClient
+            wc.Encoding = Encoding.UTF8
+            GetHtml = wc.DownloadString(url)
         Catch ex As Exception
             Errores("GetHtml:" & ex.Message)
         End Try
@@ -307,7 +319,7 @@ Public Class MainForm
                     If (CheckURLFormat(url)) Then
                         Dim sourceString As String = GetHtml(url)
                         If (Not String.IsNullOrEmpty(sourceString)) Then
-                            myRow(uxColumnImdb.DataPropertyName) = Split(url, "/c")(4)
+                            myRow(uxColumnImdb.DataPropertyName) = Split(url, "/"c)(4)
                             sql &= "imdb_id='" & myRow(uxColumnImdb.DataPropertyName).ToString & "'"
                             myRow("tiene_html") = 1
                             sql &= ",imdb_html=@imdb_html"
@@ -394,10 +406,12 @@ Public Class MainForm
                                 End If
                             End If
                         Else
-                            url = "http://www.imdb.com/title/" & uxgrd.Rows(e.RowIndex).Cells(uxColumnImdb.Name).Value.ToString
-                            If (CheckURLFormat(url)) Then Process.Start(url)
+                            If (Not String.IsNullOrEmpty(uxgrd.Rows(e.RowIndex).Cells(uxColumnImdb.Name).Value.ToString)) Then
+                                url = getImdbUrl(uxgrd.Rows(e.RowIndex).Cells(uxColumnImdb.Name).Value.ToString)
+                                If (CheckURLFormat(url)) Then Process.Start(url)
+                            End If
                         End If
-                    Case uxColumnFind.Index     'Columna Buscar en la página de (IMDB)
+                            Case uxColumnFind.Index     'Columna Buscar en la página de (IMDB)
                         Process.Start(My.Settings.urlImdb.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
                     Case uxColumnSub.Index      'Columna Subtitulos en (SUBDIVX)
                         Process.Start(My.Settings.urlSubdivx.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
@@ -431,8 +445,8 @@ Public Class MainForm
             If (e.RowIndex >= 0) Then
                 Select Case e.ColumnIndex
                     Case uxColumnImdbGo.Index       'Columna Ir a la página del enlace (IMDB)
-                        url = uxgrd.Rows(e.RowIndex).Cells(uxColumnImdb.Name).Value.ToString
-                        If (CheckURLFormat(url)) Then Diagnostics.Process.Start(url)
+                        url = getImdbUrl(uxgrd.Rows(e.RowIndex).Cells(uxColumnImdb.Name).Value.ToString)
+                        If (CheckURLFormat(url)) Then Process.Start(url)
                 End Select
             End If
         Catch ex As Exception
@@ -504,7 +518,7 @@ Public Class MainForm
             For Each myGridRow As DataGridViewRow In gridRows
                 Me.Text = String.Format("IMDB. Actualizando registro {0} de {1}", index, gridRows.Count)
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
-                Dim url As String = myRow(uxColumnImdb.DataPropertyName).ToString
+                Dim url As String = getImdbUrl(myRow(uxColumnImdb.DataPropertyName).ToString)
                 If (CheckURLFormat(url)) Then
                     Dim sourceString As String = GetHtml(url)
                     If (Not String.IsNullOrEmpty(sourceString)) Then
@@ -606,5 +620,5 @@ Public Class MainForm
     End Sub
 
 #End Region
-    
+
 End Class
