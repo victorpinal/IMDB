@@ -24,11 +24,11 @@
         Try
             uxError.Clear()
 
-            If (String.IsNullOrEmpty(uxtxtFicheroDatos.Text)) Then
-                uxError.SetError(uxtxtFicheroDatos, "Debe de indicar un nombre de fichero donde guardar los datos.")
-                uxtxtFicheroDatos.Focus()
-                Exit Sub
-            End If
+            'If (String.IsNullOrEmpty(uxtxtFicheroDatos.Text)) Then
+            '    uxError.SetError(uxtxtFicheroDatos, "Debe de indicar un nombre de fichero donde guardar los datos.")
+            '    uxtxtFicheroDatos.Focus()
+            '    Exit Sub
+            'End If
 
             If (String.IsNullOrEmpty(uxtxtIMDB.Text) OrElse Not uxtxtIMDB.Text.Contains("TESTSEARCH")) Then
                 uxError.SetError(uxlblIMDB, "La url debe de contener el término ""TESTSEARCH""")
@@ -76,8 +76,8 @@
 
     Private Sub uxbtnBuscarFichero_Click(sender As Object, e As EventArgs) Handles uxbtnBuscarFichero.Click
         Try
-            uxSaveFileDialog.InitialDirectory = IO.Path.GetDirectoryName(uxtxtFicheroDatos.Text)
-            uxSaveFileDialog.FileName = IO.Path.GetFileName(uxtxtFicheroDatos.Text)
+            'uxSaveFileDialog.InitialDirectory = IO.Path.GetDirectoryName(uxtxtFicheroDatos.Text)
+            'uxSaveFileDialog.FileName = IO.Path.GetFileName(uxtxtFicheroDatos.Text)
             If (uxSaveFileDialog.ShowDialog(Me) = DialogResult.OK) Then
                 uxtxtFicheroDatos.Text = uxSaveFileDialog.FileName
             End If
