@@ -2,6 +2,18 @@
 
 Public Class GestionXML
 
+    Private baseDatos As BaseDatos
+
+    Public Sub New(ByRef baseDatos As BaseDatos)
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        Me.baseDatos = baseDatos
+
+    End Sub
+
     Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OK_Button.Click
         Me.DialogResult = System.Windows.Forms.DialogResult.OK
         Me.Close()
@@ -19,12 +31,12 @@ Public Class GestionXML
                 Dim DS As New DataSet
                 DS.ReadXml(uxdlgOpen.FileName)
                 Dim myTableXML As DataTable = DS.Tables(0)
-                Dim myTableBD As DataTable = BaseDatos.Select("SELECT filename FROM Film")
+                Dim myTableBD As DataTable = baseDatos.Select("SELECT filename FROM Film")
 
                 'Metemos registros nuevos
                 For Each myRow As DataRow In myTableXML.Rows
-                    If (myTableBD.Select("filename='" & BaseDatos.QuitaComilla(myRow("filename").ToString) & "'").Length = 0) Then
-                        BaseDatos.ExecuteNonQuery("INSERT INTO Film (filename, name, imdb_id, imdb_rating, imdb_ratingcount, omdb, ruta, fecha_alta) " &
+                    If (myTableBD.Select("filename='" & QuitaComilla(myRow("filename").ToString) & "'").Length = 0) Then
+                        baseDatos.ExecuteNonQuery("INSERT INTO Film (filename, name, imdb_id, imdb_rating, imdb_ratingcount, omdb, ruta, fecha_alta) " &
                                                   "VALUES (@filename, @name, @imdb_id, @imdb_rating, @imdb_ratingcount, @omdb, @ruta, @fecha_alta)",
                                                   {New MySqlParameter("@filename", myRow("filename")),
                                                   New MySqlParameter("@name", myRow("name")),
@@ -35,7 +47,7 @@ Public Class GestionXML
                                                   New MySqlParameter("@ruta", myRow("ruta")),
                                                   New MySqlParameter("@fecha_alta", myRow("fecha_alta"))})
                     Else
-                        BaseDatos.ExecuteNonQuery("UPDATE Film SET " &
+                        baseDatos.ExecuteNonQuery("UPDATE Film SET " &
                                                   "name=@name, imdb_id=@imdb_id, imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount, omdb=@omdb, ruta=@ruta, fecha_alta=@fecha_alta " &
                                                   "WHERE filename=@filename",
                                                   {New MySqlParameter("@filename", myRow("filename")),
@@ -60,7 +72,7 @@ Public Class GestionXML
         Try
             uxdlgSave.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             If (uxdlgSave.ShowDialog = DialogResult.OK) Then
-                Dim myTableBD As DataTable = BaseDatos.Select("SELECT id,filename,name,imdb_id,imdb_rating,imdb_ratingcount,omdb,ruta,fecha_alta FROM Film")
+                Dim myTableBD As DataTable = baseDatos.Select("SELECT id,filename,name,imdb_id,imdb_rating,imdb_ratingcount,omdb,ruta,fecha_alta FROM Film")
                 myTableBD.WriteXml(uxdlgSave.FileName) 'Guardamos los datos del grid en un xml      
                 uxlblEstadoGuardado.Text = "Fichero " & uxdlgSave.FileName & " volcado"
             End If

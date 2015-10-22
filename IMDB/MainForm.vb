@@ -2,9 +2,12 @@
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports MySql.Data
-Imports SevenZip
 
 Public Class MainForm
+
+    Private baseDatos As BaseDatos
+    Private omdb As Omdb
+    Private gestionXML As GestionXML
 
 #Region "Inicializacion"
 
@@ -16,7 +19,12 @@ Public Class MainForm
             Threading.Thread.CurrentThread.CurrentCulture = New Globalization.CultureInfo("es-ES")
             Threading.Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator = "."
 
-            BaseDatos.Check()       'Comprobamos la base de datos
+            baseDatos = New BaseDatos()       'Comprobamos la base de datos
+            omdb = New Omdb(baseDatos)
+            gestionXML = New GestionXML(baseDatos)
+
+            AddHandler Me.FormClosed, Sub() baseDatos.Dispose()
+
             CargarRutasMRU()        'Carga las ultimas rutas abiertas
 
             uxgrd.AutoGenerateColumns = False
@@ -36,7 +44,7 @@ Public Class MainForm
             AddHandler uxgrd.Sorted, Sub() FiltraYPintaGrid(False)
 
             AddHandler uxbtnConfiguracion.Click, Sub() ConfigForm.ShowDialog(Me)
-            AddHandler uxbtnXML.Click, Sub() GestionXML.ShowDialog(Me)
+            AddHandler uxbtnXML.Click, Sub() gestionXML.ShowDialog(Me)
             AddHandler uxbtnVerDirectorio.Click, Sub() Process.Start(My.Settings.LastFolder)
             AddHandler ConfigForm.FormClosed, Sub() CargarRutasMRU()
 
@@ -70,7 +78,7 @@ Public Class MainForm
                     My.Settings.MRU_Folders.Add(My.Settings.LastFolder)
                 End If
 
-                For Each myRow As DataRow In BaseDatos.Select("SELECT DISTINCT ruta FROM `film` WHERE ruta IS NOT NULL").Rows
+                For Each myRow As DataRow In baseDatos.Select("SELECT DISTINCT ruta FROM `film` WHERE ruta IS NOT NULL").Rows
                     'Convertimos el nombre de volumen guardado a una ruta válida p.e. ALMACEN/Videos -> D:/Videos
                     Dim ruta As String = myRow("ruta").ToString
                     Dim drive As DriveInfo = DriveInfo.GetDrives().FirstOrDefault(Function(d) d.VolumeLabel = ruta.Split(Path.DirectorySeparatorChar)(0))
@@ -131,15 +139,15 @@ Public Class MainForm
             If (uxchkVerTodo.Checked) Then
                 sql &= " WHERE 1=1"
             Else
-                Dim myFiles As String() = CargaFiles(CType(IIf(uxchkVerMRU.Checked, My.Settings.MRU_Folders.Cast(Of String).ToArray, {My.Settings.LastFolder}), String())).Select(Function(e) BaseDatos.QuitaComilla(e)).ToArray
+                Dim myFiles As String() = CargaFiles(CType(IIf(uxchkVerMRU.Checked, My.Settings.MRU_Folders.Cast(Of String).ToArray, {My.Settings.LastFolder}), String())).Select(Function(e) QuitaComilla(e)).ToArray
                 If (myFiles.Length > 0) Then
-                    Dim myTableTmp As DataTable = BaseDatos.Select("SELECT id,filename,ruta FROM film WHERE filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')")
+                    Dim myTableTmp As DataTable = baseDatos.Select("SELECT id,filename,ruta FROM film WHERE filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')")
                     For Each myFile As String In myFiles
                         Dim myRow() As DataRow = myTableTmp.Select("filename='" & Path.GetFileName(myFile) & "'")
                         If (myRow.Length = 0) Then
-                            BaseDatos.ExecuteNonQuery("INSERT INTO film (filename,name,ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "',NOW())")
+                            baseDatos.ExecuteNonQuery("INSERT INTO film (filename,name,ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "',NOW())")
                         ElseIf (IsDBNull(myRow(0)("ruta")) OrElse myRow(0)("ruta").ToString <> Path.GetDirectoryName(myFile)) Then
-                            BaseDatos.ExecuteNonQuery("UPDATE film SET ruta='" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "' WHERE id=" & myRow(0)("id").ToString)
+                            baseDatos.ExecuteNonQuery("UPDATE film SET ruta='" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "' WHERE id=" & myRow(0)("id").ToString)
                         End If
                     Next
                     sql &= " WHERE filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')"
@@ -159,7 +167,7 @@ Public Class MainForm
             End If
             If (uxchkDuplicados.Checked) Then sql &= " AND duplicados > 1"
             If (uxtxtBuscar.Text.Length > 0) Then sql &= " AND CONCAT(filename ,' ',name,' ',IFNULL(imdb_id,'')) LIKE '%" & uxtxtBuscar.Text & "%'"
-            Return BaseDatos.Select(sql & " ORDER BY imdb_rating DESC, imdb_ratingcount DESC, Id")
+            Return baseDatos.Select(sql & " ORDER BY imdb_rating DESC, imdb_ratingcount DESC, Id")
         Catch ex As Exception
             Errores("CargarTabla: " & ex.Message)
             Return New DataTable
@@ -183,7 +191,7 @@ Public Class MainForm
                 Dim NumTotal As Integer
                 If (myTabla.Rows.Count > 0) Then NumTotal = CInt(myTabla.Rows(0)("total"))
                 media = CalculaMediaRating()                'Recalcula la media
-                Dim myTableMedia As DataTable = BaseDatos.Select("SELECT SUM(CASE WHEN imdb_rating>0 AND duplicados>0 THEN imdb_rating/duplicados ELSE 0 END)/SUM(CASE WHEN imdb_rating>0 AND duplicados>0 THEN 1/duplicados ELSE 0 END) AS media FROM vw_film")
+                Dim myTableMedia As DataTable = baseDatos.Select("SELECT SUM(CASE WHEN imdb_rating>0 AND duplicados>0 THEN imdb_rating/duplicados ELSE 0 END)/SUM(CASE WHEN imdb_rating>0 AND duplicados>0 THEN 1/duplicados ELSE 0 END) AS media FROM vw_film")
                 uxlblRegistros.Text = String.Format("Videos: {0} de {1} | Media Rating: {2:N2} de {3:N2}", myTabla.Rows.Count, NumTotal, media, myTableMedia.Rows(0)("media"))
             End If
 
@@ -310,10 +318,10 @@ Public Class MainForm
         Dim myRow As DataRow = TryCast(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
         Dim myParam As MySqlClient.MySqlParameter = Nothing
         If (uxgrd.IsCurrentRowDirty) Then
-            Dim sql = "UPDATE film SET "
+            Dim sql As String = "UPDATE film SET "
             Select Case e.ColumnIndex
                 Case uxColumnName.Index
-                    sql &= "name='" & BaseDatos.QuitaComilla(myRow(uxColumnName.DataPropertyName).ToString) & "'"
+                    sql &= "name='" & QuitaComilla(myRow(uxColumnName.DataPropertyName).ToString) & "'"
                 Case uxColumnImdb.Index
                     Dim url As String = Regex.Replace(myRow(uxColumnImdb.DataPropertyName).ToString, "(.+/).+$", "$1")
                     If (CheckURLFormat(url)) Then
@@ -323,7 +331,7 @@ Public Class MainForm
                             sql &= "imdb_id='" & myRow(uxColumnImdb.DataPropertyName).ToString & "'"
                             myRow("tiene_html") = 1
                             sql &= ",imdb_html=@imdb_html"
-                            myParam = New MySqlClient.MySqlParameter("@imdb_html", CompressString(sourceString))
+                            myParam = New MySqlClient.MySqlParameter("@imdb_html", Compresor.CompressString(sourceString))
                             Dim Rating As Decimal = GetRating(sourceString)
                             myRow(uxColumnRating.DataPropertyName) = Rating
                             sql &= ",imdb_rating=" & Rating
@@ -346,7 +354,7 @@ Public Class MainForm
                     sql &= "imdb_ratingcount=" & IIf(IsNumeric(myRow(uxColumnRatingCount.DataPropertyName)), myRow(uxColumnRatingCount.DataPropertyName), 0).ToString
             End Select
             sql &= " WHERE id=" & myRow("id").ToString
-            BaseDatos.ExecuteNonQuery(sql, myParam)
+            baseDatos.ExecuteNonQuery(sql, myParam)
             'Updateamos la info de Omdb Api
             If (e.ColumnIndex = uxColumnImdb.Index) Then
                 If (Omdb.cargar(CInt(myRow("id")))) Then
@@ -395,9 +403,9 @@ Public Class MainForm
                         If (e.Button = MouseButtons.Middle) Then
                             Dim myRow As DataRow = CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
                             If (CBool(myRow("tiene_html"))) Then
-                                Dim myTable As DataTable = BaseDatos.Select("SELECT imdb_html FROM film WHERE id=" & myRow("id").ToString)
+                                Dim myTable As DataTable = baseDatos.Select("SELECT imdb_html FROM film WHERE id=" & myRow("id").ToString)
                                 If (myTable.Rows.Count > 0) Then
-                                    Dim source As String = DecompressString(CType(myTable.Rows(0)(0), Byte()))
+                                    Dim source As String = Compresor.DecompressString(CType(myTable.Rows(0)(0), Byte()))
                                     If (source <> WebBrowser.source) Then
                                         WebBrowser.Ver(source)
                                     Else
@@ -411,7 +419,7 @@ Public Class MainForm
                                 If (CheckURLFormat(url)) Then Process.Start(url)
                             End If
                         End If
-                            Case uxColumnFind.Index     'Columna Buscar en la página de (IMDB)
+                    Case uxColumnFind.Index     'Columna Buscar en la página de (IMDB)
                         Process.Start(My.Settings.urlImdb.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
                     Case uxColumnSub.Index      'Columna Subtitulos en (SUBDIVX)
                         Process.Start(My.Settings.urlSubdivx.Replace("TESTSEARCH", uxgrd.Rows(e.RowIndex).Cells(uxColumnName.Name).Value.ToString.Replace("  ", " ").Replace(" ", "+")))
@@ -430,7 +438,7 @@ Public Class MainForm
             Dim myRow As DataRow = TryCast(uxgrd.CurrentRow.DataBoundItem, DataRowView).Row
             If (e.KeyCode = Keys.Delete Or e.KeyCode = Keys.Back) Then
                 If (MsgBox("Borrar " & myRow(uxColumnFilename.DataPropertyName).ToString, MsgBoxStyle.OkCancel, "BORRAR") = MsgBoxResult.Ok) Then
-                    BaseDatos.ExecuteNonQuery("DELETE FROM film WHERE id=" & myRow("id").ToString)
+                    baseDatos.ExecuteNonQuery("DELETE FROM film WHERE id=" & myRow("id").ToString)
                     myRow.Delete()
                 End If
             End If
@@ -499,7 +507,7 @@ Public Class MainForm
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
                 Dim str As String = SplitWords(myRow(uxColumnFilename.DataPropertyName).ToString)
                 myRow(uxColumnName.DataPropertyName) = str
-                BaseDatos.ExecuteNonQuery("UPDATE film SET name='" & BaseDatos.QuitaComilla(str) & "' WHERE id=" & myRow("id").ToString)
+                baseDatos.ExecuteNonQuery("UPDATE film SET name='" & QuitaComilla(str) & "' WHERE id=" & myRow("id").ToString)
                 myRow.AcceptChanges()
                 index += 1
             Next
@@ -534,7 +542,7 @@ Public Class MainForm
                             myRow(uxColumnRatingCount.DataPropertyName) = ratingCount
                             sql &= ",imdb_ratingcount=" & ratingCount
                         End If
-                        BaseDatos.ExecuteNonQuery(sql & " WHERE id=" & myRow("id").ToString, New MySqlClient.MySqlParameter("@imdb_html", CompressString(sourceString)))
+                        baseDatos.ExecuteNonQuery(sql & " WHERE id=" & myRow("id").ToString, New MySqlClient.MySqlParameter("@imdb_html", Compresor.CompressString(sourceString)))
                         myRow.AcceptChanges()
                     End If
                 End If
@@ -570,53 +578,11 @@ Public Class MainForm
 
 #End Region
 
-#Region "7zip"
-
-    Private Function CompressString(text As String) As Byte()
-        Dim compressedData As Byte() = Nothing
-        Dim compressor As New SevenZipCompressor()
-        compressor.CompressionMethod = CompressionMethod.Ppmd
-        compressor.CompressionLevel = CompressionLevel.Ultra
-        compressor.ScanOnlyWritable = True
-        compressor.DefaultItemName = "T"
-
-        Dim utf8 As New UTF8Encoding()
-        Using msin As New MemoryStream(utf8.GetBytes(text))
-            Using msout As New MemoryStream()
-                compressor.CompressStream(msin, msout)
-                compressedData = msout.ToArray()
-            End Using
-        End Using
-        Return compressedData
-    End Function
-
-    Private Function DecompressString(compressedText As Byte()) As String
-        Dim uncompressedbuffer As Byte() = Nothing
-        Using compressedbuffer As New MemoryStream(compressedText)
-            Try
-                Using extractor As New SevenZipExtractor(compressedbuffer)
-                    Using msout As New MemoryStream()
-                        extractor.ExtractFile(0, msout)
-                        uncompressedbuffer = msout.ToArray()
-                    End Using
-                End Using
-            Catch e As Exception
-                uncompressedbuffer = Encoding.UTF8.GetBytes(e.Message)
-            End Try
-        End Using
-        Return Encoding.UTF8.GetString(uncompressedbuffer)
-    End Function
-
-#End Region
-
 #Region "Errores"
 
     Private Sub Errores(str As String)
         uxError.SetError(uxbtnRefresh, str)
-        uxError.SetIconAlignment(uxbtnRefresh, ErrorIconAlignment.MiddleLeft)
-        Using outfile As New StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ErroresIMDB.log"), True)
-            outfile.WriteLine(Now.ToString & vbTab & str)
-        End Using
+        IMDB.Errores(str, False)
     End Sub
 
 #End Region

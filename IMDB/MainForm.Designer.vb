@@ -58,6 +58,7 @@ Partial Class MainForm
         Me.uxbtnRefresh = New System.Windows.Forms.Button()
         Me.uxpnlGrid = New System.Windows.Forms.Panel()
         Me.uxpnlArriba = New System.Windows.Forms.Panel()
+        Me.uxchkPendientesOMDB = New System.Windows.Forms.CheckBox()
         Me.uxbtnBorrarTexto = New System.Windows.Forms.Button()
         Me.uxtxtBuscar = New System.Windows.Forms.TextBox()
         Me.uxchkVerMRU = New System.Windows.Forms.CheckBox()
@@ -71,7 +72,6 @@ Partial Class MainForm
         Me.DataGridViewImageColumn2 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.DataGridViewImageColumn3 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.uxError = New System.Windows.Forms.ErrorProvider(Me.components)
-        Me.uxchkPendientesOMDB = New System.Windows.Forms.CheckBox()
         CType(Me.uxgrd, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.uxMenuGrid.SuspendLayout()
         Me.uxpnlAbajo.SuspendLayout()
@@ -329,6 +329,7 @@ Partial Class MainForm
         '
         Me.uxbtnRefresh.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.uxbtnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.uxError.SetIconAlignment(Me.uxbtnRefresh, System.Windows.Forms.ErrorIconAlignment.MiddleLeft)
         Me.uxbtnRefresh.Image = Global.IMDB.My.Resources.Resources.refresca
         Me.uxbtnRefresh.Location = New System.Drawing.Point(946, 4)
         Me.uxbtnRefresh.Name = "uxbtnRefresh"
@@ -363,6 +364,19 @@ Partial Class MainForm
         Me.uxpnlArriba.Name = "uxpnlArriba"
         Me.uxpnlArriba.Size = New System.Drawing.Size(1024, 29)
         Me.uxpnlArriba.TabIndex = 0
+        '
+        'uxchkPendientesOMDB
+        '
+        Me.uxchkPendientesOMDB.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.uxchkPendientesOMDB.AutoSize = True
+        Me.uxchkPendientesOMDB.Location = New System.Drawing.Point(789, 7)
+        Me.uxchkPendientesOMDB.Name = "uxchkPendientesOMDB"
+        Me.uxchkPendientesOMDB.Size = New System.Drawing.Size(89, 17)
+        Me.uxchkPendientesOMDB.TabIndex = 8
+        Me.uxchkPendientesOMDB.Text = "Pend. OMDB"
+        Me.uxchkPendientesOMDB.ThreeState = True
+        Me.uxToolTip.SetToolTip(Me.uxchkPendientesOMDB, "Visualizar los ficheros duplicados")
+        Me.uxchkPendientesOMDB.UseVisualStyleBackColor = True
         '
         'uxbtnBorrarTexto
         '
@@ -484,19 +498,6 @@ Partial Class MainForm
         'uxError
         '
         Me.uxError.ContainerControl = Me
-        '
-        'uxchkPendientesOMDB
-        '
-        Me.uxchkPendientesOMDB.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.uxchkPendientesOMDB.AutoSize = True
-        Me.uxchkPendientesOMDB.Location = New System.Drawing.Point(789, 7)
-        Me.uxchkPendientesOMDB.Name = "uxchkPendientesOMDB"
-        Me.uxchkPendientesOMDB.Size = New System.Drawing.Size(89, 17)
-        Me.uxchkPendientesOMDB.TabIndex = 8
-        Me.uxchkPendientesOMDB.Text = "Pend. OMDB"
-        Me.uxchkPendientesOMDB.ThreeState = True
-        Me.uxToolTip.SetToolTip(Me.uxchkPendientesOMDB, "Visualizar los ficheros duplicados")
-        Me.uxchkPendientesOMDB.UseVisualStyleBackColor = True
         '
         'MainForm
         '

@@ -1,17 +1,30 @@
 ﻿Option Strict Off
+
 Imports System.Net
 Imports MySql.Data.MySqlClient
 
 Public Class Omdb
 
+    Private baseDatos As BaseDatos
+
+    Public Sub New(ByRef baseDatos As BaseDatos)
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        Me.baseDatos = baseDatos
+
+    End Sub
+
     Public Function cargar(id As Integer) As Boolean
         cargar = False
         Try
-            Dim url As String = BaseDatos.Select("SELECT imdb_id FROM film WHERE id=@id", New MySqlParameter("@id", id)).Rows(0)("imdb_id").ToString
-            If (Not String.IsNullOrWhiteSpace(url)) Then
+            Dim myRow As DataRow = baseDatos.Select("SELECT imdb_id FROM film WHERE id=@id AND ifnull(imdb_id,'') <> ''", New MySqlParameter("@id", id)).AsEnumerable.FirstOrDefault
+            If (myRow IsNot Nothing) Then
                 Dim wb As New WebClient()
                 wb.Encoding = System.Text.Encoding.UTF8
-                Dim response As String = wb.DownloadString("http://www.omdbapi.com/?i=" & url & "&plot=full&r=json&tomatoes=true")
+                Dim response As String = wb.DownloadString("http://www.omdbapi.com/?i=" & myRow("imdb_id").ToString & "&plot=full&r=json&tomatoes=true")
                 If (Not String.IsNullOrEmpty(response)) Then
                     Dim j As Object = New Web.Script.Serialization.JavaScriptSerializer().Deserialize(Of Object)(response)
                     Dim imagen As New IO.MemoryStream
@@ -19,9 +32,10 @@ Public Class Omdb
                         CType(WebRequest.Create(j("Poster")), HttpWebRequest).GetResponse().GetResponseStream.CopyTo(imagen)
                     Catch ex As Exception
                     End Try
-                    BaseDatos.ExecuteNonQuery("UPDATE film SET omdb=@omdb,picture=@picture WHERE id=@id", {New MySqlParameter("@omdb", response),
-                                              New MySqlParameter("@picture", If(imagen.Length = 0, DBNull.Value, imagen.ToArray)),
-                                              New MySqlParameter("@id", id)})
+                    baseDatos.ExecuteNonQuery("UPDATE film SET omdb=@omdb, picture=@picture WHERE id=@id",
+                                              {New MySqlParameter("@omdb", response),
+                                               New MySqlParameter("@picture", If(imagen.Length = 0, Nothing, imagen.ToArray)),
+                                               New MySqlParameter("@id", id)})
                     cargar = True
                 End If
             End If
@@ -33,11 +47,11 @@ Public Class Omdb
     Public Function mostrar(id As Integer) As Boolean
         mostrar = False
         Try
-            If (BaseDatos.Select("SELECT id FROM film WHERE id=@id AND ifnull(omdb,'') <> ''", New MySqlParameter("@id", id)).Rows.Count = 0) Then
+            If (baseDatos.Select("SELECT id FROM film WHERE id=@id AND ifnull(omdb,'') <> ''", New MySqlParameter("@id", id)).Rows.Count = 0) Then
                 cargar(id)
             End If
-            Dim myRow As DataRow = BaseDatos.Select("SELECT omdb,picture FROM film WHERE id=@id", New MySqlParameter("@id", id)).Rows(0)
-            If (Not IsDBNull(myRow("omdb"))) Then
+            Dim myRow As DataRow = baseDatos.Select("SELECT omdb,picture FROM film WHERE id=@id AND omdb IS NOT NULL", New MySqlParameter("@id", id)).AsEnumerable.FirstOrDefault
+            If (myRow IsNot nothing) Then
                 Dim j As Object = New Web.Script.Serialization.JavaScriptSerializer().Deserialize(Of Object)(myRow("omdb").ToString)
                 Me.Text = j("Title")
                 uxlblAño.Text = j("Year")

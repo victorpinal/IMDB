@@ -72,7 +72,7 @@
     <OptionStrict>On</OptionStrict>
   </PropertyGroup>
   <PropertyGroup>
-    <OptionInfer>On</OptionInfer>
+    <OptionInfer>Off</OptionInfer>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>imdb.ico</ApplicationIcon>
@@ -102,7 +102,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -123,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clases\BaseDatos.vb" />
+    <Compile Include="Clases\Compresor.vb" />
     <Compile Include="ConfigForm.Designer.vb">
       <DependentUpon>ConfigForm.vb</DependentUpon>
     </Compile>
@@ -142,6 +145,7 @@
       <DependentUpon>MainForm.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="modCommon.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
