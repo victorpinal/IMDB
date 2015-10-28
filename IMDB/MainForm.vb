@@ -30,8 +30,11 @@ Public Class MainForm
             uxgrd.AutoGenerateColumns = False
             FiltraYPintaGrid()
 
-            AddHandler uxtxtBuscar.TextChanged, Sub() FiltraYPintaGrid()
-            AddHandler uxbtnBorrarTexto.Click, Sub() uxtxtBuscar.ResetText()
+            AddHandler uxtxtBuscar.TextChanged, Sub() If (uxtxtBuscar.Text.Length > 2) Then FiltraYPintaGrid() 'Al menos buscar 3 caracteres
+            AddHandler uxbtnBorrarTexto.Click, Sub()
+                                                   uxtxtBuscar.ResetText()
+                                                   FiltraYPintaGrid()
+                                               End Sub
             AddHandler uxchkVerMRU.CheckedChanged, Sub() FiltraYPintaGrid()
             AddHandler uxchkVerTodo.CheckedChanged, Sub() FiltraYPintaGrid()
             AddHandler uxchkPendientesIMDB.CheckStateChanged, Sub() FiltraYPintaGrid()
