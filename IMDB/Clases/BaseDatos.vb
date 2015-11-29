@@ -15,9 +15,9 @@ Public Class BaseDatos
 
             If (String.IsNullOrEmpty(My.MySettings.Default.Server)) Then
                 My.MySettings.Default.Server = InputBox("Servidor MySQL?",, "localhost")
-                My.MySettings.Default.Port = InputBox("Puerto",, "3306")
-                My.MySettings.Default.User = InputBox("Usuario")
-                My.MySettings.Default.Password = InputBox("Password")
+                My.MySettings.Default.Port = InputBox("Puerto",, If(String.IsNullOrEmpty(My.MySettings.Default.Port), "3306", My.MySettings.Default.Port))
+                My.MySettings.Default.User = InputBox("Usuario",, If(String.IsNullOrEmpty(My.MySettings.Default.User), "", My.MySettings.Default.User))
+                My.MySettings.Default.Password = InputBox("Password", "", If(String.IsNullOrEmpty(My.MySettings.Default.Password), "", My.MySettings.Default.Password))
             End If
 
             Dim conb As MySqlClient.MySqlConnectionStringBuilder = New MySqlClient.MySqlConnectionStringBuilder()
@@ -33,6 +33,7 @@ Public Class BaseDatos
         Catch ex As Exception
             Errores("BaseDatos:Check:" & ex.Message)
             If (myConection.State <> ConnectionState.Closed) Then myConection.Close()
+            My.MySettings.Default.Server = String.Empty
             Application.Exit()
         End Try
     End Sub
