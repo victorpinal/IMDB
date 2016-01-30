@@ -1,4 +1,6 @@
-﻿Imports System.IO
+﻿Option Strict Off
+
+Imports System.IO
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports MySql.Data
@@ -279,69 +281,75 @@ Public Class MainForm
         Return Regex.IsMatch(url, "/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/")
     End Function
 
-    Private Function GetHtml(url As String) As String
-        GetHtml = String.Empty
-        Try
-            Dim wc As New Net.WebClient
-            wc.Encoding = Encoding.UTF8
-            GetHtml = wc.DownloadString(url)
-        Catch ex As Exception
-            Errores("GetHtml:" & ex.Message)
-        End Try
-    End Function
+    'Private Function GetHtml(url As String) As String
+    '    GetHtml = String.Empty
+    '    Try
+    '        Dim wc As New Net.WebClient
+    '        'wc.Encoding = Encoding.UTF8
+    '        'GetHtml = wc.DownloadString(url)
 
-    Private Function GetRating(sourceString As String) As Decimal
-        Dim rating As Decimal = 0
-        Try
-            sourceString = Regex.Replace(sourceString, "^.*<div class=""star-box giga-star"">(.*)<div class=""star-box-rating-widget"">.*", "$1", RegexOptions.Singleline)
-            Dim reg As New Regex(".*\bclass=""titlePageSprite star-box-giga-star"">\s*(\d\.\d).*", RegexOptions.Singleline)
-            If (reg.IsMatch(sourceString)) Then Decimal.TryParse(reg.Replace(sourceString, "$1"), rating)
-        Catch ex As Exception
-            Errores("GetRating:" & ex.Message)
-        End Try
-        Return rating
-    End Function
+    '        Dim r As Random = New Random()
+    '        'Random IP Address
+    '        wc.Headers("X-Forwarded-For") = r.Next(0, 255) & "." & r.Next(0, 255) & "." & r.Next(0, 255) & "." & r.Next(0, 255)
+    '        'Random User-Agent
+    '        wc.Headers("User-Agent") = "Mozilla/" & r.Next(3, 5) & ".0 (Windows NT " & r.Next(3, 5) & "." & r.Next(0, 2) & "; rv:2.0.1) Gecko/20100101 Firefox/" & r.Next(3, 5) & "." & r.Next(0, 5) & "." & r.Next(0, 5)
+    '        Dim datastream As Stream = wc.OpenRead(url)
+    '        Dim reader As New StreamReader(datastream)
+    '        Dim sb As New StringBuilder()
+    '        While (Not reader.EndOfStream)
+    '            sb.Append(reader.ReadLine())
+    '        End While
 
-    Private Function GetRatingCount(sourceString As String) As Integer
-        Dim count As Integer = 0
-        Try
-            sourceString = Regex.Replace(sourceString, "^.*<span itemprop=""ratingCount"">\s*((\d+.)*\d+).*", "$1", RegexOptions.Singleline)
-            Integer.TryParse(Replace(Replace(sourceString, ",", ""), ".", ""), count)
-        Catch ex As Exception
-            Errores("GetRating:" & ex.Message)
-        End Try
-        Return count
-    End Function
+    '        GetHtml = sb.ToString
+
+    '    Catch ex As Exception
+    '        Errores("GetHtml:" & ex.Message)
+    '    End Try
+    'End Function
+
+    'Private Function GetRating(sourceString As String) As Decimal
+    '    Dim rating As Decimal = 0
+    '    Try
+    '        sourceString = Regex.Replace(sourceString, "^.*<div class=""star-box giga-star"">(.*)<div class=""star-box-rating-widget"">.*", "$1", RegexOptions.Singleline)
+    '        Dim reg As New Regex(".*\bclass=""titlePageSprite star-box-giga-star"">\s*(\d\.\d).*", RegexOptions.Singleline)
+    '        If (reg.IsMatch(sourceString)) Then Decimal.TryParse(reg.Replace(sourceString, "$1"), rating)
+    '    Catch ex As Exception
+    '        Errores("GetRating:" & ex.Message)
+    '    End Try
+    '    Return rating
+    'End Function
+
+    'Private Function GetRatingCount(sourceString As String) As Integer
+    '    Dim count As Integer = 0
+    '    Try
+    '        sourceString = Regex.Replace(sourceString, "^.*<span itemprop=""ratingCount"">\s*((\d+.)*\d+).*", "$1", RegexOptions.Singleline)
+    '        Integer.TryParse(Replace(Replace(sourceString, ",", ""), ".", ""), count)
+    '    Catch ex As Exception
+    '        Errores("GetRatingCount:" & ex.Message)
+    '    End Try
+    '    Return count
+    'End Function
 
 #End Region
 
 #Region "Grid"
 
     Private Sub uxgrd_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs) Handles uxgrd.CellEndEdit
+
         Dim myRow As DataRow = TryCast(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
-        Dim myParam As MySqlClient.MySqlParameter = Nothing
+
         If (uxgrd.IsCurrentRowDirty) Then
+
             Dim sql As String = "UPDATE film SET "
+
             Select Case e.ColumnIndex
                 Case uxColumnName.Index
                     sql &= "name='" & QuitaComilla(myRow(uxColumnName.DataPropertyName).ToString) & "'"
                 Case uxColumnImdb.Index
                     Dim url As String = Regex.Replace(myRow(uxColumnImdb.DataPropertyName).ToString, "(.+/).+$", "$1")
                     If (CheckURLFormat(url)) Then
-                        Dim sourceString As String = GetHtml(url)
-                        If (Not String.IsNullOrEmpty(sourceString)) Then
-                            myRow(uxColumnImdb.DataPropertyName) = Split(url, "/"c)(4)
-                            sql &= "imdb_id='" & myRow(uxColumnImdb.DataPropertyName).ToString & "'"
-                            myRow("tiene_html") = 1
-                            sql &= ",imdb_html=@imdb_html"
-                            myParam = New MySqlClient.MySqlParameter("@imdb_html", Compresor.CompressString(sourceString))
-                            Dim Rating As Decimal = GetRating(sourceString)
-                            myRow(uxColumnRating.DataPropertyName) = Rating
-                            sql &= ",imdb_rating=" & Rating
-                            Dim RatingCount As Integer = GetRatingCount(sourceString)
-                            myRow(uxColumnRatingCount.DataPropertyName) = RatingCount
-                            sql &= ",imdb_ratingcount=" & RatingCount
-                        End If
+                        myRow(uxColumnImdb.DataPropertyName) = Split(url, "/"c)(4)
+                        sql &= "imdb_id='" & myRow(uxColumnImdb.DataPropertyName).ToString & "'"
                     Else
                         If (MsgBox("Eliminar los datos IMDB de la linea?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes) Then
                             sql &= "imdb_id=NULL,imdb_html=NULL,imdb_rating=NULL,imdb_ratingcount=NULL"
@@ -356,17 +364,34 @@ Public Class MainForm
                 Case uxColumnRatingCount.Index
                     sql &= "imdb_ratingcount=" & IIf(IsNumeric(myRow(uxColumnRatingCount.DataPropertyName)), myRow(uxColumnRatingCount.DataPropertyName), 0).ToString
             End Select
+
             sql &= " WHERE id=" & myRow("id").ToString
-            baseDatos.ExecuteNonQuery(sql, myParam)
+            baseDatos.ExecuteNonQuery(sql)
+
             'Updateamos la info de Omdb Api
             If (e.ColumnIndex = uxColumnImdb.Index) Then
-                If (Omdb.cargar(CInt(myRow("id")))) Then
+                Dim response As Object = omdb.cargar(CInt(myRow("id")))
+                If (response IsNot Nothing) Then
+
+                    Dim Rating As Decimal = CDec(response("imdbRating"))
+                    Dim RatingCount As Integer = CDec(response("imdbVotes"))
+                    baseDatos.ExecuteNonQuery("UPDATE film SET imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount WHERE id=@id",
+                                              {New MySqlClient.MySqlParameter("@imdb_rating", Rating),
+                                               New MySqlClient.MySqlParameter("@imdb_ratingcount", RatingCount),
+                                               New MySqlClient.MySqlParameter("@id", myRow("id"))})
+
                     myRow("tiene_omdb") = 1
+                    myRow(uxColumnRating.DataPropertyName) = Rating
+                    myRow(uxColumnRatingCount.DataPropertyName) = RatingCount
+
                 End If
             End If
             '----
+
             myRow.AcceptChanges()
+
         End If
+
     End Sub
 
     Private Sub uxgrd_DataError(sender As Object, e As DataGridViewDataErrorEventArgs) Handles uxgrd.DataError
@@ -397,10 +422,8 @@ Public Class MainForm
                 Select Case e.ColumnIndex
                     Case uxColumnInfo.Index   'Mostramos los datos en OmdbApi
                         Dim myRow As DataRow = CType(uxgrd.Rows(e.RowIndex).DataBoundItem, DataRowView).Row
-                        If (myRow IsNot Nothing AndAlso CBool(myRow("tiene_html"))) Then
-                            If (Omdb.mostrar(CInt(myRow("id")))) Then
-                                myRow("tiene_omdb") = 1
-                            End If
+                        If (myRow IsNot Nothing AndAlso omdb.mostrar(CInt(myRow("id")))) Then
+                            myRow("tiene_omdb") = 1
                         End If
                     Case uxColumnImdbGo.Index       'Columna Ir a la página del enlace (IMDB)                        
                         If (e.Button = MouseButtons.Middle) Then
@@ -529,26 +552,24 @@ Public Class MainForm
             For Each myGridRow As DataGridViewRow In gridRows
                 Me.Text = String.Format("IMDB. Actualizando registro {0} de {1}", index, gridRows.Count)
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
-                Dim url As String = getImdbUrl(myRow(uxColumnImdb.DataPropertyName).ToString)
-                If (CheckURLFormat(url)) Then
-                    Dim sourceString As String = GetHtml(url)
-                    If (Not String.IsNullOrEmpty(sourceString)) Then
-                        myRow("tiene_html") = 1
-                        Dim sql As String = "UPDATE film SET imdb_html=@imdb_html"
-                        Dim rating As Decimal = GetRating(sourceString)
-                        If (rating > 0 AndAlso (IsDBNull(myRow(uxColumnRating.DataPropertyName)) OrElse rating <> CDec(myRow(uxColumnRating.DataPropertyName)))) Then
-                            myRow(uxColumnRating.DataPropertyName) = rating
-                            sql &= ",imdb_rating=" & rating
-                        End If
-                        Dim ratingCount As Integer = GetRatingCount(sourceString)
-                        If (ratingCount > 0 AndAlso (IsDBNull(myRow(uxColumnRatingCount.DataPropertyName)) OrElse ratingCount <> CInt(myRow(uxColumnRatingCount.DataPropertyName)))) Then
-                            myRow(uxColumnRatingCount.DataPropertyName) = ratingCount
-                            sql &= ",imdb_ratingcount=" & ratingCount
-                        End If
-                        baseDatos.ExecuteNonQuery(sql & " WHERE id=" & myRow("id").ToString, New MySqlClient.MySqlParameter("@imdb_html", Compresor.CompressString(sourceString)))
-                        myRow.AcceptChanges()
-                    End If
+
+                'Updateamos la info de Omdb Api
+                Dim response As Object = omdb.cargar(CInt(myRow("id")))
+                If (response IsNot Nothing) Then
+
+                    Dim Rating As Decimal = CDec(response("imdbRating"))
+                    Dim RatingCount As Integer = CDec(response("imdbVotes"))
+                    baseDatos.ExecuteNonQuery("UPDATE film SET imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount WHERE id=@id",
+                                                  {New MySqlClient.MySqlParameter("@imdb_rating", Rating),
+                                                   New MySqlClient.MySqlParameter("@imdb_ratingcount", RatingCount),
+                                                   New MySqlClient.MySqlParameter("@id", myRow("id"))})
+
+                    myRow("tiene_omdb") = 1
+                    myRow(uxColumnRating.DataPropertyName) = Rating
+                    myRow(uxColumnRatingCount.DataPropertyName) = RatingCount
+                    myRow.AcceptChanges()
                 End If
+                '----
                 index += 1
             Next
         Catch ex As Exception
@@ -566,7 +587,7 @@ Public Class MainForm
             For Each myGridRow As DataGridViewRow In gridRows
                 Me.Text = String.Format("OMDB. Importando registro {0} de {1}", index, gridRows.Count)
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
-                If (Omdb.cargar(CInt((myRow("id"))))) Then
+                If (omdb.cargar(CInt(myRow("id"))) IsNot Nothing) Then
                     myRow("tiene_omdb") = 1
                 End If
                 index += 1

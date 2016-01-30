@@ -17,14 +17,17 @@ Public Class Omdb
 
     End Sub
 
-    Public Function cargar(id As Integer) As Boolean
-        cargar = False
+    Public Function cargar(id As Integer) As Object
         Try
+
             Dim myRow As DataRow = baseDatos.Select("SELECT imdb_id FROM film WHERE id=@id AND ifnull(imdb_id,'') <> ''", New MySqlParameter("@id", id)).AsEnumerable.FirstOrDefault
+
             If (myRow IsNot Nothing) Then
+
                 Dim wb As New WebClient()
                 wb.Encoding = System.Text.Encoding.UTF8
                 Dim response As String = wb.DownloadString("http://www.omdbapi.com/?i=" & myRow("imdb_id").ToString & "&plot=full&r=json&tomatoes=true")
+
                 If (Not String.IsNullOrEmpty(response)) Then
                     Dim j As Object = New Web.Script.Serialization.JavaScriptSerializer().Deserialize(Of Object)(response)
                     Dim imagen As New IO.MemoryStream
@@ -36,11 +39,16 @@ Public Class Omdb
                                               {New MySqlParameter("@omdb", response),
                                                New MySqlParameter("@picture", If(imagen.Length = 0, Nothing, imagen.ToArray)),
                                                New MySqlParameter("@id", id)})
-                    cargar = True
+                    Return New Web.Script.Serialization.JavaScriptSerializer().Deserialize(Of Object)(response)
                 End If
+
             End If
+
+            Return Nothing
+
         Catch ex As Exception
             MsgBox(ex.Message)
+            Return Nothing
         End Try
     End Function
 
