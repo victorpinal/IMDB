@@ -1,7 +1,6 @@
 ﻿Option Strict Off
 
 Imports System.IO
-Imports System.Text
 Imports System.Text.RegularExpressions
 Imports MySql.Data
 
@@ -373,8 +372,8 @@ Public Class MainForm
                 Dim response As Object = omdb.cargar(CInt(myRow("id")))
                 If (response IsNot Nothing) Then
 
-                    Dim Rating As Decimal = CDec(response("imdbRating"))
-                    Dim RatingCount As Integer = CDec(response("imdbVotes"))
+                    Dim Rating As Decimal = CDec(If(IsNumeric(response("imdbRating")), response("imdbRating"), 0))
+                    Dim RatingCount As Integer = CDec(If(IsNumeric(response("imdbVotes")), response("imdbVotes"), 0))
                     baseDatos.ExecuteNonQuery("UPDATE film SET imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount WHERE id=@id",
                                               {New MySqlClient.MySqlParameter("@imdb_rating", Rating),
                                                New MySqlClient.MySqlParameter("@imdb_ratingcount", RatingCount),
@@ -557,8 +556,8 @@ Public Class MainForm
                 Dim response As Object = omdb.cargar(CInt(myRow("id")))
                 If (response IsNot Nothing) Then
 
-                    Dim Rating As Decimal = CDec(response("imdbRating"))
-                    Dim RatingCount As Integer = CDec(response("imdbVotes"))
+                    Dim Rating As Decimal = CDec(If(IsNumeric(response("imdbRating")), response("imdbRating"), 0))
+                    Dim RatingCount As Integer = CDec(If(IsNumeric(response("imdbVotes")), response("imdbVotes"), 0))
                     baseDatos.ExecuteNonQuery("UPDATE film SET imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount WHERE id=@id",
                                                   {New MySqlClient.MySqlParameter("@imdb_rating", Rating),
                                                    New MySqlClient.MySqlParameter("@imdb_ratingcount", RatingCount),
