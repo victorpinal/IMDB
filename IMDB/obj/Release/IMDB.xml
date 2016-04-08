@@ -1,0 +1,147 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+IMDB
+</name>
+</assembly>
+<members>
+<member name="M:IMDB.BaseDatos.#ctor">
+ <summary>
+ Comprueba la base de datos sqlite y la tabla "Film"
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.BaseDatos.Select(System.String,MySql.Data.MySqlClient.MySqlParameter)">
+ <summary>
+ Ejecuta una consulta y devuelve la tabla resultante
+ </summary>
+ <param name="Sql"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.BaseDatos.ExecuteNonQuery(System.String,MySql.Data.MySqlClient.MySqlParameter)">
+ <summary>
+ Ejecuta una consulta DML y devuelve el numero de filas afectadas
+ </summary>
+ <param name="Sql"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.BaseDatos.ExecuteScalar(System.String,MySql.Data.MySqlClient.MySqlParameter[])">
+ <summary>
+ Ejecuta una consulta DML y devuelve un valor (p.ej. el id insertado)
+ </summary>
+ <param name="Sql"></param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.MainForm.CargarRutasMRU">
+ <summary>
+ Carga y valida la lista de ultimos directorios utilizados
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.MainForm.CargaFiles(System.String[])">
+ <summary>
+ Devuelve una lista de ficheros filtrados por extensión de los directorios indicados
+ </summary>
+ <param name="sDirs">Lista de directorios</param>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.MainForm.CargarTabla">
+ <summary>
+ Carga la tabla de datos, realiza el filtrado del directorio actual y actualiza el grid
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.MainForm.FiltraYPintaGrid(System.Boolean)">
+ <summary>
+ Actualiza el grid, mostrando los ficheros según las opciones seleccionadas
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.MainForm.SplitWords(System.String)">
+ <summary>
+ Elimina del nombre de fichero pasado una lista de palabras configurada
+ </summary>
+ <param name="s">Cadena con el nombre del fichero</param>
+ <returns>Cadena con el nombre filtrado</returns>
+ <remarks></remarks>
+</member>
+<member name="M:IMDB.MainForm.CalculaMediaRating">
+ <summary>
+ Calcula la media de valoraciones de los registros visibles del grid
+ </summary>
+ <returns>Valorarción media</returns>
+ <remarks></remarks>
+</member>
+<member name="T:IMDB.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.busca">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.carpeta">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.close">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.guarda">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.Home">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.informacion">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.refresca">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.subs">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.Video">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:IMDB.My.Resources.Resources.xml">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+</members>
+</doc>

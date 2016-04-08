@@ -1,0 +1,17 @@
+C:\Users\Victor\Source\Repos\IMDB\IMDB\bin\Release\IMDB.exe.config
+C:\Users\Victor\Source\Repos\IMDB\IMDB\bin\Release\IMDB.exe
+C:\Users\Victor\Source\Repos\IMDB\IMDB\bin\Release\IMDB.pdb
+C:\Users\Victor\Source\Repos\IMDB\IMDB\bin\Release\IMDB.xml
+C:\Users\Victor\Source\Repos\IMDB\IMDB\bin\Release\MySql.Data.dll
+C:\Users\Victor\Source\Repos\IMDB\IMDB\bin\Release\SevenZipSharp.dll
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.vbprojResolveAssemblyReference.cache
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.ConfigForm.resources
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.GestionXML.resources
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.MainForm.resources
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.Resources.resources
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.Omdb.resources
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.WebBrowser.resources
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.vbproj.GenerateResource.Cache
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.exe
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.xml
+C:\Users\Victor\Source\Repos\IMDB\IMDB\obj\Release\IMDB.pdb

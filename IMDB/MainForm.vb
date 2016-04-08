@@ -85,7 +85,7 @@ Public Class MainForm
                 For Each myRow As DataRow In baseDatos.Select("SELECT DISTINCT ruta FROM `film` WHERE ruta IS NOT NULL").Rows
                     'Convertimos el nombre de volumen guardado a una ruta válida p.e. ALMACEN/Videos -> D:/Videos
                     Dim ruta As String = myRow("ruta").ToString
-                    Dim drive As DriveInfo = DriveInfo.GetDrives().FirstOrDefault(Function(d) d.VolumeLabel = ruta.Split(Path.DirectorySeparatorChar)(0))
+                    Dim drive As DriveInfo = DriveInfo.GetDrives().FirstOrDefault(Function(d) d.IsReady AndAlso d.VolumeLabel = ruta.Split(Path.DirectorySeparatorChar)(0))
                     If (drive IsNot Nothing) Then
                         ruta = ruta.Replace(drive.VolumeLabel & Path.DirectorySeparatorChar, drive.Name)
                         If (Not My.Settings.MRU_Folders.Contains(ruta)) Then
