@@ -3,6 +3,15 @@
 Public Class BaseDatos
     Implements IDisposable
 
+    Private Shared instance As BaseDatos
+
+    Public Shared Function getInstance() As BaseDatos
+
+        If (instance Is Nothing) Then instance = New BaseDatos()
+        Return instance
+
+    End Function
+
     Private myConection As MySqlClient.MySqlConnection
     Private myCommand As MySqlClient.MySqlCommand
 
@@ -10,7 +19,7 @@ Public Class BaseDatos
     ''' Comprueba la base de datos sqlite y la tabla "Film"
     ''' </summary>
     ''' <remarks></remarks>
-    Public Sub New()
+    Private Sub New()
         Try
 
             If (String.IsNullOrEmpty(My.MySettings.Default.Server)) Then
@@ -31,7 +40,7 @@ Public Class BaseDatos
             myConection.Open()
 
         Catch ex As Exception
-            Errores("BaseDatos:Check:" & ex.Message)
+            LogErrores("BaseDatos:Check:" & ex.Message)
             If (myConection.State <> ConnectionState.Closed) Then myConection.Close()
             My.MySettings.Default.Server = String.Empty
             Application.Exit()
@@ -52,7 +61,7 @@ Public Class BaseDatos
             If (Param IsNot Nothing) Then myCommand.Parameters.Add(Param)
             myTable.Load(myCommand.ExecuteReader)
         Catch ex As Exception
-            Errores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
+            LogErrores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
         End Try
         Return myTable
     End Function
@@ -67,7 +76,7 @@ Public Class BaseDatos
             Next
             myTable.Load(myCommand.ExecuteReader)
         Catch ex As Exception
-            Errores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
+            LogErrores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
         End Try
         Return myTable
     End Function
@@ -86,7 +95,7 @@ Public Class BaseDatos
             If (Param IsNot Nothing) Then myCommand.Parameters.Add(Param)
             ExecuteNonQuery = myCommand.ExecuteNonQuery
         Catch ex As Exception
-            Errores("BaseDatos:ExecuteNonQuery:" & Sql & ":" & ex.Message)
+            LogErrores("BaseDatos:ExecuteNonQuery:" & Sql & ":" & ex.Message)
         End Try
     End Function
 
@@ -100,7 +109,7 @@ Public Class BaseDatos
             Next
             ExecuteNonQuery = myCommand.ExecuteNonQuery
         Catch ex As Exception
-            Errores("BaseDatos:ExecuteNonQuery:" & Sql & ":" & ex.Message)
+            LogErrores("BaseDatos:ExecuteNonQuery:" & Sql & ":" & ex.Message)
         End Try
     End Function
 
@@ -120,7 +129,7 @@ Public Class BaseDatos
             Next
             ExecuteScalar = CInt(myCommand.ExecuteScalar)
         Catch ex As Exception
-            Errores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
+            LogErrores("BaseDatos:ExecuteScalar:" & Sql & ":" & ex.Message)
         End Try
     End Function
 

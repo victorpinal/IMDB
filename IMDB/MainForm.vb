@@ -20,8 +20,8 @@ Public Class MainForm
             Threading.Thread.CurrentThread.CurrentCulture = New Globalization.CultureInfo("es-ES")
             Threading.Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator = "."
 
-            baseDatos = New BaseDatos()       'Comprobamos la base de datos
-            omdb = New Omdb(baseDatos)
+            baseDatos = BaseDatos.getInstance       'Comprobamos la base de datos
+            omdb = New Omdb()
             gestionXML = New GestionXML(baseDatos)
 
             AddHandler Me.FormClosed, Sub() baseDatos.Dispose()
@@ -528,7 +528,7 @@ Public Class MainForm
         Try
             Me.Cursor = Cursors.WaitCursor
             Dim index As Integer = 1
-            Dim gridRows As IEnumerable(Of DataGridViewRow) = CType(IIf(sender Is uxMenuActualizarInfoSeleccionados, uxgrd.SelectedRows.Cast(Of DataGridViewRow), uxgrd.Rows.Cast(Of DataGridViewRow)), IEnumerable(Of DataGridViewRow))
+            Dim gridRows As IEnumerable(Of DataGridViewRow) = CType(IIf(sender Is uxMenuActualizarInfoIMDBSeleccionados, uxgrd.SelectedRows.Cast(Of DataGridViewRow), uxgrd.Rows.Cast(Of DataGridViewRow)), IEnumerable(Of DataGridViewRow))
             For Each myGridRow As DataGridViewRow In gridRows
                 Me.Text = String.Format("IMDB. Actualizando registro {0} de {1}", index, gridRows.Count)
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
@@ -545,11 +545,47 @@ Public Class MainForm
         Me.Cursor = Cursors.Default
     End Sub
 
-    Private Sub uxMenuActualizarInfo_Click(sender As Object, e As EventArgs) Handles uxMenuActualizarInfoTodos.Click, uxMenuActualizarInfoSeleccionados.Click
+    Private Sub uxMenuActualizarInfoIMDB_Click(sender As Object, e As EventArgs) Handles uxMenuActualizarInfoIMDBTodos.Click, uxMenuActualizarInfoIMDBSeleccionados.Click
         Try
             Me.Cursor = Cursors.WaitCursor
             Dim index As Integer = 1
-            Dim gridRows As IEnumerable(Of DataGridViewRow) = CType(IIf(sender Is uxMenuActualizarInfoSeleccionados, uxgrd.SelectedRows.Cast(Of DataGridViewRow), uxgrd.Rows.Cast(Of DataGridViewRow)), IEnumerable(Of DataGridViewRow))
+            Dim gridRows As IEnumerable(Of DataGridViewRow) = CType(IIf(sender Is uxMenuActualizarInfoIMDBSeleccionados, uxgrd.SelectedRows.Cast(Of DataGridViewRow), uxgrd.Rows.Cast(Of DataGridViewRow)), IEnumerable(Of DataGridViewRow))
+            For Each myGridRow As DataGridViewRow In gridRows
+                Me.Text = String.Format("IMDB. Actualizando registro {0} de {1}", index, gridRows.Count)
+                Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
+                'Updateamos la info de Imdb Api
+                Dim response As Object = Imdb.cargar(CInt(myRow("id")))
+                If (response IsNot Nothing) Then
+
+                    Dim Rating As Decimal
+                    Dim RatingCount As Integer
+                    Decimal.TryParse(response("data")("rating"), Rating)
+                    Integer.TryParse(response("data")("num_votes"), Globalization.NumberStyles.AllowThousands, Globalization.CultureInfo.InvariantCulture, RatingCount)
+                    baseDatos.ExecuteNonQuery("UPDATE film SET imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount WHERE id=@id",
+                                                  {New MySqlClient.MySqlParameter("@imdb_rating", Rating),
+                                                   New MySqlClient.MySqlParameter("@imdb_ratingcount", RatingCount),
+                                                   New MySqlClient.MySqlParameter("@id", myRow("id"))})
+
+                    myRow("tiene_omdb") = 1
+                    myRow(uxColumnRating.DataPropertyName) = Rating
+                    myRow(uxColumnRatingCount.DataPropertyName) = RatingCount
+                    myRow.AcceptChanges()
+                End If
+                '----
+                index += 1
+            Next
+        Catch ex As Exception
+            Errores("uxMenuActualizarInfoIMDB_Click:" & ex.Message)
+        End Try
+        Me.Text = "IMDB"
+        Me.Cursor = Cursors.Default
+    End Sub
+
+    Private Sub uxMenuActualizarInfoOMDB_Click(sender As Object, e As EventArgs) Handles uxMenuActualizarInfoOMDBTodos.Click, uxMenuActualizarInfoOMDBSeleccionados.Click
+        Try
+            Me.Cursor = Cursors.WaitCursor
+            Dim index As Integer = 1
+            Dim gridRows As IEnumerable(Of DataGridViewRow) = CType(IIf(sender Is uxMenuActualizarInfoIMDBSeleccionados, uxgrd.SelectedRows.Cast(Of DataGridViewRow), uxgrd.Rows.Cast(Of DataGridViewRow)), IEnumerable(Of DataGridViewRow))
             For Each myGridRow As DataGridViewRow In gridRows
                 Me.Text = String.Format("IMDB. Actualizando registro {0} de {1}", index, gridRows.Count)
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
@@ -576,7 +612,7 @@ Public Class MainForm
                 index += 1
             Next
         Catch ex As Exception
-            Errores("uxMenuActualizarPuntuaciones_Click:" & ex.Message)
+            Errores("uxMenuActualizarInfoOMDB_Click:" & ex.Message)
         End Try
         Me.Text = "IMDB"
         Me.Cursor = Cursors.Default
@@ -603,13 +639,47 @@ Public Class MainForm
         Me.Cursor = Cursors.Default
     End Sub
 
+    Private Function GetHtml(url As String) As String
+        GetHtml = String.Empty
+        Try
+            Dim wc As New Net.WebClient
+            wc.Encoding = System.Text.Encoding.UTF8
+            GetHtml = wc.DownloadString(url)
+        Catch ex As Exception
+            Errores("GetHtml:" & ex.Message)
+        End Try
+    End Function
+
+    Private Function GetRating(sourceString As String) As Decimal
+        Dim rating As Decimal = 0
+        Try
+            sourceString = Regex.Replace(sourceString, "^.*<div class=""star-box giga-star"">(.*)<div class=""star-box-rating-widget"">.*", "$1", RegexOptions.Singleline)
+            Dim reg As New Regex(".*\bclass=""titlePageSprite star-box-giga-star"">\s*(\d\.\d).*", RegexOptions.Singleline)
+            If (reg.IsMatch(sourceString)) Then Decimal.TryParse(reg.Replace(sourceString, "$1"), rating)
+        Catch ex As Exception
+            Errores("GetRating:" & ex.Message)
+        End Try
+        Return rating
+    End Function
+
+    Private Function GetRatingCount(sourceString As String) As Integer
+        Dim count As Integer = 0
+        Try
+            sourceString = Regex.Replace(sourceString, "^.*<span itemprop=""ratingCount"">\s*((\d+.)*\d+).*", "$1", RegexOptions.Singleline)
+            Integer.TryParse(Replace(Replace(sourceString, ",", ""), ".", ""), count)
+        Catch ex As Exception
+            Errores("GetRating:" & ex.Message)
+        End Try
+        Return count
+    End Function
+
 #End Region
 
 #Region "Errores"
 
     Private Sub Errores(str As String)
         uxError.SetError(uxbtnRefresh, str)
-        IMDB.Errores(str, False)
+        LogErrores(str, False)
     End Sub
 
 #End Region

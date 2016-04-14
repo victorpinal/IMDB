@@ -67,7 +67,7 @@ Module modCommon
 
     End Function
 
-    Sub Errores(str As String, Optional showError As Boolean = True)
+    Sub LogErrores(str As String, Optional showError As Boolean = True)
 
         If (showError) Then MsgBox(str)
 

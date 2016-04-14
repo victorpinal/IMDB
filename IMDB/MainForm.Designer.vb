@@ -43,9 +43,9 @@ Partial Class MainForm
         Me.uxMenuFormatearNombres = New System.Windows.Forms.ToolStripMenuItem()
         Me.uxMenuFormatearNombresSeleccionados = New System.Windows.Forms.ToolStripMenuItem()
         Me.uxMenuFormatearNombresTodos = New System.Windows.Forms.ToolStripMenuItem()
-        Me.uxMenuActualizarInfo = New System.Windows.Forms.ToolStripMenuItem()
-        Me.uxMenuActualizarInfoSeleccionados = New System.Windows.Forms.ToolStripMenuItem()
-        Me.uxMenuActualizarInfoTodos = New System.Windows.Forms.ToolStripMenuItem()
+        Me.uxMenuActualizarInfoIMDB = New System.Windows.Forms.ToolStripMenuItem()
+        Me.uxMenuActualizarInfoIMDBSeleccionados = New System.Windows.Forms.ToolStripMenuItem()
+        Me.uxMenuActualizarInfoIMDBTodos = New System.Windows.Forms.ToolStripMenuItem()
         Me.uxMenuImportarOMDB = New System.Windows.Forms.ToolStripMenuItem()
         Me.uxMenuImportarOMDBSeleccionados = New System.Windows.Forms.ToolStripMenuItem()
         Me.uxMenuImportarOMDBTodos = New System.Windows.Forms.ToolStripMenuItem()
@@ -72,6 +72,9 @@ Partial Class MainForm
         Me.DataGridViewImageColumn2 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.DataGridViewImageColumn3 = New System.Windows.Forms.DataGridViewImageColumn()
         Me.uxError = New System.Windows.Forms.ErrorProvider(Me.components)
+        Me.uxMenuActualizarInfoOMDB = New System.Windows.Forms.ToolStripMenuItem()
+        Me.uxMenuActualizarInfoOMDBSeleccionados = New System.Windows.Forms.ToolStripMenuItem()
+        Me.uxMenuActualizarInfoOMDBTodos = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.uxgrd, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.uxMenuGrid.SuspendLayout()
         Me.uxpnlAbajo.SuspendLayout()
@@ -204,9 +207,9 @@ Partial Class MainForm
         '
         'uxMenuGrid
         '
-        Me.uxMenuGrid.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.uxMenuFormatearNombres, Me.uxMenuActualizarInfo, Me.uxMenuImportarOMDB})
+        Me.uxMenuGrid.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.uxMenuFormatearNombres, Me.uxMenuActualizarInfoIMDB, Me.uxMenuActualizarInfoOMDB, Me.uxMenuImportarOMDB})
         Me.uxMenuGrid.Name = "uxMenuGrid"
-        Me.uxMenuGrid.Size = New System.Drawing.Size(179, 70)
+        Me.uxMenuGrid.Size = New System.Drawing.Size(179, 114)
         '
         'uxMenuFormatearNombres
         '
@@ -227,24 +230,24 @@ Partial Class MainForm
         Me.uxMenuFormatearNombresTodos.Size = New System.Drawing.Size(149, 22)
         Me.uxMenuFormatearNombresTodos.Text = "Todos"
         '
-        'uxMenuActualizarInfo
+        'uxMenuActualizarInfoIMDB
         '
-        Me.uxMenuActualizarInfo.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.uxMenuActualizarInfoSeleccionados, Me.uxMenuActualizarInfoTodos})
-        Me.uxMenuActualizarInfo.Name = "uxMenuActualizarInfo"
-        Me.uxMenuActualizarInfo.Size = New System.Drawing.Size(178, 22)
-        Me.uxMenuActualizarInfo.Text = "Actualizar IMDB"
+        Me.uxMenuActualizarInfoIMDB.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.uxMenuActualizarInfoIMDBSeleccionados, Me.uxMenuActualizarInfoIMDBTodos})
+        Me.uxMenuActualizarInfoIMDB.Name = "uxMenuActualizarInfoIMDB"
+        Me.uxMenuActualizarInfoIMDB.Size = New System.Drawing.Size(178, 22)
+        Me.uxMenuActualizarInfoIMDB.Text = "Actualizar IMDB"
         '
-        'uxMenuActualizarInfoSeleccionados
+        'uxMenuActualizarInfoIMDBSeleccionados
         '
-        Me.uxMenuActualizarInfoSeleccionados.Name = "uxMenuActualizarInfoSeleccionados"
-        Me.uxMenuActualizarInfoSeleccionados.Size = New System.Drawing.Size(149, 22)
-        Me.uxMenuActualizarInfoSeleccionados.Text = "Seleccionados"
+        Me.uxMenuActualizarInfoIMDBSeleccionados.Name = "uxMenuActualizarInfoIMDBSeleccionados"
+        Me.uxMenuActualizarInfoIMDBSeleccionados.Size = New System.Drawing.Size(152, 22)
+        Me.uxMenuActualizarInfoIMDBSeleccionados.Text = "Seleccionados"
         '
-        'uxMenuActualizarInfoTodos
+        'uxMenuActualizarInfoIMDBTodos
         '
-        Me.uxMenuActualizarInfoTodos.Name = "uxMenuActualizarInfoTodos"
-        Me.uxMenuActualizarInfoTodos.Size = New System.Drawing.Size(149, 22)
-        Me.uxMenuActualizarInfoTodos.Text = "Todos"
+        Me.uxMenuActualizarInfoIMDBTodos.Name = "uxMenuActualizarInfoIMDBTodos"
+        Me.uxMenuActualizarInfoIMDBTodos.Size = New System.Drawing.Size(152, 22)
+        Me.uxMenuActualizarInfoIMDBTodos.Text = "Todos"
         '
         'uxMenuImportarOMDB
         '
@@ -499,6 +502,25 @@ Partial Class MainForm
         '
         Me.uxError.ContainerControl = Me
         '
+        'uxMenuActualizarInfoOMDB
+        '
+        Me.uxMenuActualizarInfoOMDB.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.uxMenuActualizarInfoOMDBSeleccionados, Me.uxMenuActualizarInfoOMDBTodos})
+        Me.uxMenuActualizarInfoOMDB.Name = "uxMenuActualizarInfoOMDB"
+        Me.uxMenuActualizarInfoOMDB.Size = New System.Drawing.Size(178, 22)
+        Me.uxMenuActualizarInfoOMDB.Text = "Actualizar OMDB"
+        '
+        'uxMenuActualizarInfoOMDBSeleccionados
+        '
+        Me.uxMenuActualizarInfoOMDBSeleccionados.Name = "uxMenuActualizarInfoOMDBSeleccionados"
+        Me.uxMenuActualizarInfoOMDBSeleccionados.Size = New System.Drawing.Size(152, 22)
+        Me.uxMenuActualizarInfoOMDBSeleccionados.Text = "Seleccionados"
+        '
+        'uxMenuActualizarInfoOMDBTodos
+        '
+        Me.uxMenuActualizarInfoOMDBTodos.Name = "uxMenuActualizarInfoOMDBTodos"
+        Me.uxMenuActualizarInfoOMDBTodos.Size = New System.Drawing.Size(152, 22)
+        Me.uxMenuActualizarInfoOMDBTodos.Text = "Todos"
+        '
         'MainForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -545,11 +567,11 @@ Partial Class MainForm
     Friend WithEvents uxMenuFormatearNombres As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents uxbtnBorrarTexto As System.Windows.Forms.Button
     Friend WithEvents uxError As System.Windows.Forms.ErrorProvider
-    Friend WithEvents uxMenuActualizarInfo As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents uxMenuActualizarInfoIMDB As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents uxMenuFormatearNombresSeleccionados As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents uxMenuFormatearNombresTodos As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents uxMenuActualizarInfoSeleccionados As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents uxMenuActualizarInfoTodos As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents uxMenuActualizarInfoIMDBSeleccionados As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents uxMenuActualizarInfoIMDBTodos As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents uxMenuImportarOMDB As ToolStripMenuItem
     Friend WithEvents uxMenuImportarOMDBSeleccionados As ToolStripMenuItem
     Friend WithEvents uxMenuImportarOMDBTodos As ToolStripMenuItem
@@ -565,4 +587,7 @@ Partial Class MainForm
     Friend WithEvents uxColumnRating As DataGridViewTextBoxColumn
     Friend WithEvents uxColumnRatingCount As DataGridViewTextBoxColumn
     Friend WithEvents uxchkPendientesOMDB As CheckBox
+    Friend WithEvents uxMenuActualizarInfoOMDB As ToolStripMenuItem
+    Friend WithEvents uxMenuActualizarInfoOMDBSeleccionados As ToolStripMenuItem
+    Friend WithEvents uxMenuActualizarInfoOMDBTodos As ToolStripMenuItem
 End Class
