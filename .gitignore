@@ -4,4 +4,6 @@
 
 /IMDB/obj/Debug
 /IMDB/bin/Debug
-/.vs/IMDB/v15
+/.vs
+/IMDB/bin/Release
+/IMDB/obj/Release
