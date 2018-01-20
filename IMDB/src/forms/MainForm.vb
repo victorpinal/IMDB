@@ -379,14 +379,14 @@ Public Class MainForm
 
             'Updateamos la info de Omdb Api
             If (e.ColumnIndex = uxColumnImdb.Index) Then
-                Dim response As Object = omdb.cargar(CInt(myRow("id")))
-                If (response IsNot Nothing) Then
+                Dim film As OmdbFilm = omdb.cargar(CInt(myRow("id")))
+                If (film IsNot Nothing) Then
 
                     Dim Rating As Decimal
                     Dim RatingCount As Integer
-                    Decimal.TryParse(getObjValue(response,"imdbRating"), Rating)
-                    Integer.TryParse(getObjValue(response,"imdbVotes"), Globalization.NumberStyles.AllowThousands, Globalization.CultureInfo.InvariantCulture, RatingCount)
-                    baseDatos.ExecuteNonQuery("UPDATE film SET imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount WHERE id=@id",
+                    Decimal.TryParse(film.imdbRating, Rating)
+                    Integer.TryParse(film.imdbVotes, Globalization.NumberStyles.AllowThousands, Globalization.CultureInfo.InvariantCulture, RatingCount)
+                    baseDatos.ExecuteNonQuery("UPDATE film Set imdb_rating=@imdb_rating, imdb_ratingcount =@imdb_ratingcount WHERE id=@id",
                                               {New MySqlClient.MySqlParameter("@imdb_rating", Rating),
                                                New MySqlClient.MySqlParameter("@imdb_ratingcount", RatingCount),
                                                New MySqlClient.MySqlParameter("@id", myRow("id"))})
@@ -595,19 +595,19 @@ Public Class MainForm
         Try
             Me.Cursor = Cursors.WaitCursor
             Dim index As Integer = 1
-            Dim gridRows As IEnumerable(Of DataGridViewRow) = CType(IIf(sender Is uxMenuActualizarInfoIMDBSeleccionados, uxgrd.SelectedRows.Cast(Of DataGridViewRow), uxgrd.Rows.Cast(Of DataGridViewRow)), IEnumerable(Of DataGridViewRow))
+            Dim gridRows As IEnumerable(Of DataGridViewRow) = CType(IIf(sender Is uxMenuActualizarInfoOMDBSeleccionados, uxgrd.SelectedRows.Cast(Of DataGridViewRow), uxgrd.Rows.Cast(Of DataGridViewRow)), IEnumerable(Of DataGridViewRow))
             For Each myGridRow As DataGridViewRow In gridRows
                 Me.Text = String.Format("IMDB. Actualizando registro {0} de {1}", index, gridRows.Count)
                 Dim myRow As DataRow = CType(myGridRow.DataBoundItem, DataRowView).Row
 
                 'Updateamos la info de Omdb Api
-                Dim response As Object = omdb.cargar(CInt(myRow("id")))
-                If (response IsNot Nothing) Then
+                Dim film As OmdbFilm = omdb.cargar(CInt(myRow("id")))
+                If (film IsNot Nothing) Then
 
                     Dim Rating As Decimal
                     Dim RatingCount As Integer
-                    Decimal.TryParse(getObjValue(response,"imdbRating"), Rating)
-                    Integer.TryParse(getObjValue(response,"imdbVotes"), Globalization.NumberStyles.AllowThousands, Globalization.CultureInfo.InvariantCulture, RatingCount)
+                    Decimal.TryParse(film.imdbRating, Rating)
+                    Integer.TryParse(film.imdbVotes, Globalization.NumberStyles.AllowThousands, Globalization.CultureInfo.InvariantCulture, RatingCount)
                     baseDatos.ExecuteNonQuery("UPDATE film SET imdb_rating=@imdb_rating, imdb_ratingcount=@imdb_ratingcount WHERE id=@id",
                                                   {New MySqlClient.MySqlParameter("@imdb_rating", Rating),
                                                    New MySqlClient.MySqlParameter("@imdb_ratingcount", RatingCount),
