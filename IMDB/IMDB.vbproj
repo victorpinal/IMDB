@@ -49,7 +49,8 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>IMDB.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
@@ -58,7 +59,8 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>IMDB.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
@@ -95,19 +97,25 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySql.Data.6.9.8\lib\net45\MySql.Data.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="MySql.Data, Version=6.10.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.10.5\lib\net452\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL">
       <HintPath>..\packages\SevenZipSharp.0.64\lib\SevenZipSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -127,29 +135,29 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clases\BaseDatos.vb" />
-    <Compile Include="Clases\Compresor.vb" />
-    <Compile Include="Clases\Imdb.vb" />
-    <Compile Include="ConfigForm.Designer.vb">
+    <Compile Include="src\BaseDatos.vb" />
+    <Compile Include="src\Compresor.vb" />
+    <Compile Include="src\Imdb.vb" />
+    <Compile Include="src\forms\ConfigForm.Designer.vb">
       <DependentUpon>ConfigForm.vb</DependentUpon>
     </Compile>
-    <Compile Include="ConfigForm.vb">
+    <Compile Include="src\forms\ConfigForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GestionXML.Designer.vb">
+    <Compile Include="src\forms\GestionXML.Designer.vb">
       <DependentUpon>GestionXML.vb</DependentUpon>
     </Compile>
-    <Compile Include="GestionXML.vb">
+    <Compile Include="src\forms\GestionXML.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.vb">
+    <Compile Include="src\forms\MainForm.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.vb">
+    <Compile Include="src\forms\MainForm.Designer.vb">
       <DependentUpon>MainForm.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="modCommon.vb" />
+    <Compile Include="src\modCommon.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
@@ -165,27 +173,27 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Clases\Omdb.Designer.vb">
+    <Compile Include="src\forms\Omdb.Designer.vb">
       <DependentUpon>Omdb.vb</DependentUpon>
     </Compile>
-    <Compile Include="Clases\Omdb.vb">
+    <Compile Include="src\forms\Omdb.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WebBrowser.Designer.vb">
+    <Compile Include="src\forms\WebBrowser.Designer.vb">
       <DependentUpon>WebBrowser.vb</DependentUpon>
     </Compile>
-    <Compile Include="WebBrowser.vb">
+    <Compile Include="src\forms\WebBrowser.vb">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ConfigForm.resx">
+    <EmbeddedResource Include="src\forms\ConfigForm.resx">
       <DependentUpon>ConfigForm.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GestionXML.resx">
+    <EmbeddedResource Include="src\forms\GestionXML.resx">
       <DependentUpon>GestionXML.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="src\forms\MainForm.resx">
       <DependentUpon>MainForm.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -194,10 +202,10 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Clases\Omdb.resx">
+    <EmbeddedResource Include="src\forms\Omdb.resx">
       <DependentUpon>Omdb.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WebBrowser.resx">
+    <EmbeddedResource Include="src\forms\WebBrowser.resx">
       <DependentUpon>WebBrowser.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
@@ -249,12 +257,12 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\SevenZipSharp.Interop.9.38.2\build\SevenZipSharp.Interop.targets" Condition="Exists('..\packages\SevenZipSharp.Interop.9.38.2\build\SevenZipSharp.Interop.targets')" />
+  <Import Project="..\packages\SevenZipSharp.Interop.9.38.3\build\SevenZipSharp.Interop.targets" Condition="Exists('..\packages\SevenZipSharp.Interop.9.38.3\build\SevenZipSharp.Interop.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SevenZipSharp.Interop.9.38.2\build\SevenZipSharp.Interop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SevenZipSharp.Interop.9.38.2\build\SevenZipSharp.Interop.targets'))" />
+    <Error Condition="!Exists('..\packages\SevenZipSharp.Interop.9.38.3\build\SevenZipSharp.Interop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SevenZipSharp.Interop.9.38.3\build\SevenZipSharp.Interop.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
