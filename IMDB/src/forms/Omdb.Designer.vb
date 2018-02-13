@@ -35,17 +35,19 @@ Partial Class Omdb
         'uxlblAño
         '
         Me.uxlblAño.BackColor = System.Drawing.Color.LightGray
-        Me.uxlblAño.Location = New System.Drawing.Point(5, 4)
+        Me.uxlblAño.Location = New System.Drawing.Point(7, 5)
+        Me.uxlblAño.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblAño.Name = "uxlblAño"
-        Me.uxlblAño.Size = New System.Drawing.Size(47, 16)
+        Me.uxlblAño.Size = New System.Drawing.Size(63, 20)
         Me.uxlblAño.TabIndex = 1
         Me.uxlblAño.Text = "Year"
         '
         'uxpcb
         '
-        Me.uxpcb.Location = New System.Drawing.Point(271, 3)
+        Me.uxpcb.Location = New System.Drawing.Point(361, 4)
+        Me.uxpcb.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxpcb.Name = "uxpcb"
-        Me.uxpcb.Size = New System.Drawing.Size(233, 297)
+        Me.uxpcb.Size = New System.Drawing.Size(311, 366)
         Me.uxpcb.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.uxpcb.TabIndex = 3
         Me.uxpcb.TabStop = False
@@ -53,36 +55,40 @@ Partial Class Omdb
         'uxlblRuntime
         '
         Me.uxlblRuntime.BackColor = System.Drawing.Color.LightGray
-        Me.uxlblRuntime.Location = New System.Drawing.Point(55, 4)
+        Me.uxlblRuntime.Location = New System.Drawing.Point(73, 5)
+        Me.uxlblRuntime.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblRuntime.Name = "uxlblRuntime"
-        Me.uxlblRuntime.Size = New System.Drawing.Size(59, 16)
+        Me.uxlblRuntime.Size = New System.Drawing.Size(79, 20)
         Me.uxlblRuntime.TabIndex = 4
         Me.uxlblRuntime.Text = "Runtime"
         '
         'uxlblGenre
         '
         Me.uxlblGenre.BackColor = System.Drawing.Color.LightGray
-        Me.uxlblGenre.Location = New System.Drawing.Point(116, 4)
+        Me.uxlblGenre.Location = New System.Drawing.Point(155, 5)
+        Me.uxlblGenre.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblGenre.Name = "uxlblGenre"
-        Me.uxlblGenre.Size = New System.Drawing.Size(151, 16)
+        Me.uxlblGenre.Size = New System.Drawing.Size(201, 20)
         Me.uxlblGenre.TabIndex = 5
         Me.uxlblGenre.Text = "Genre"
         '
         'uxlblDirector
         '
         Me.uxlblDirector.BackColor = System.Drawing.Color.LightGray
-        Me.uxlblDirector.Location = New System.Drawing.Point(5, 22)
+        Me.uxlblDirector.Location = New System.Drawing.Point(7, 27)
+        Me.uxlblDirector.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblDirector.Name = "uxlblDirector"
-        Me.uxlblDirector.Size = New System.Drawing.Size(262, 16)
+        Me.uxlblDirector.Size = New System.Drawing.Size(349, 20)
         Me.uxlblDirector.TabIndex = 6
         Me.uxlblDirector.Text = "Director"
         '
         'uxlblActors
         '
         Me.uxlblActors.BackColor = System.Drawing.Color.LightGray
-        Me.uxlblActors.Location = New System.Drawing.Point(5, 40)
+        Me.uxlblActors.Location = New System.Drawing.Point(7, 49)
+        Me.uxlblActors.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.uxlblActors.Name = "uxlblActors"
-        Me.uxlblActors.Size = New System.Drawing.Size(262, 31)
+        Me.uxlblActors.Size = New System.Drawing.Size(349, 38)
         Me.uxlblActors.TabIndex = 7
         Me.uxlblActors.Text = "Actors"
         '
@@ -90,21 +96,23 @@ Partial Class Omdb
         '
         Me.uxtxtPlot.BackColor = System.Drawing.Color.LightGray
         Me.uxtxtPlot.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.uxtxtPlot.Location = New System.Drawing.Point(5, 73)
+        Me.uxtxtPlot.Location = New System.Drawing.Point(7, 90)
+        Me.uxtxtPlot.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.uxtxtPlot.Multiline = True
         Me.uxtxtPlot.Name = "uxtxtPlot"
         Me.uxtxtPlot.ReadOnly = True
         Me.uxtxtPlot.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.uxtxtPlot.Size = New System.Drawing.Size(262, 227)
+        Me.uxtxtPlot.Size = New System.Drawing.Size(349, 279)
         Me.uxtxtPlot.TabIndex = 8
         Me.uxtxtPlot.TabStop = False
         Me.uxtxtPlot.Text = "Plot"
         '
         'Omdb
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(509, 305)
+        Me.ClientSize = New System.Drawing.Size(679, 375)
+        Me.ControlBox = False
         Me.Controls.Add(Me.uxtxtPlot)
         Me.Controls.Add(Me.uxlblActors)
         Me.Controls.Add(Me.uxlblDirector)
@@ -113,6 +121,7 @@ Partial Class Omdb
         Me.Controls.Add(Me.uxlblAño)
         Me.Controls.Add(Me.uxpcb)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow
+        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.Name = "Omdb"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.Text = "Omdb"
