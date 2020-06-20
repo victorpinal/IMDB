@@ -1,12 +1,15 @@
 ﻿Imports System.IO
 Imports System.Text.RegularExpressions
 Imports MySql.Data
+Imports System.Security.Cryptography
+Imports System.Text
 
 Public Class MainForm
 
     Private baseDatos As BaseDatos
     Private omdb As Omdb
     Private gestionXML As GestionXML
+    Private hasher As MD5 = MD5.Create()
 
 #Region "Inicializacion"
 
@@ -140,39 +143,46 @@ Public Class MainForm
     ''' <remarks></remarks>
     Private Function CargarTabla() As DataTable
         Try
-            Dim sql As String = "SELECT * FROM vw_film"
+            ''UpdateHash()
+            Dim sql As String = "SELECT id, filename, filenameHash, name, ruta, T1.imdb_id, 
+                                IFNULL(imdb_rating,0) AS imdb_rating, 
+                                IFNULL(imdb_ratingcount,0) AS imdb_ratingcount, 
+                                CASE WHEN (T1.imdb_id IS NOT NULL) THEN 1 ELSE 0 END AS tiene_html,
+                                CASE WHEN (omdb IS NOT NULL) THEN 1 ELSE 0 END AS tiene_omdb,
+                                IFNULL(T2.duplicados,1) duplicados
+                                FROM film T1 LEFT JOIN (SELECT imdb_id, count(*) AS duplicados FROM film GROUP BY imdb_id HAVING COUNT(*)>1) T2 ON T2.imdb_id = T1.imdb_id"
             'Añade los registros (ficheros) que no existen en la base de datos
             If (uxchkVerTodo.Checked) Then
                 sql &= " WHERE 1=1"
             Else
                 Dim myFiles As String() = CargaFiles(CType(IIf(uxchkVerMRU.Checked, My.Settings.MRU_Folders.Cast(Of String).ToArray, {My.Settings.LastFolder}), String())).Select(Function(e) QuitaComilla(e)).ToArray
                 If (myFiles.Length > 0) Then
-                    Dim myTableTmp As DataTable = baseDatos.Select("SELECT id,filename,ruta FROM film WHERE filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')")
+                    Dim myTableTmp As DataTable = baseDatos.Select("SELECT id,filename,ruta FROM film WHERE filenameHash IN ('" & String.Join("','", myFiles.Select(Function(x) GetMD5(Path.GetFileName(x)))) & "')")
                     For Each myFile As String In myFiles
                         Dim myRow() As DataRow = myTableTmp.Select("filename='" & Path.GetFileName(myFile) & "'")
                         If (myRow.Length = 0) Then
-                            baseDatos.ExecuteNonQuery("INSERT INTO film (filename,name,ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "',NOW())")
+                            baseDatos.ExecuteNonQuery("INSERT INTO film (filename,filenameHash,name,ruta,fecha_alta) VALUES ('" & Path.GetFileName(myFile) & "','" & GetMD5(Path.GetFileName(myFile)) & "','" & SplitWords(Path.GetFileNameWithoutExtension(myFile)) & "','" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "',NOW())")
                         ElseIf (IsDBNull(myRow(0)("ruta")) OrElse myRow(0)("ruta").ToString <> Path.GetDirectoryName(myFile)) Then
                             baseDatos.ExecuteNonQuery("UPDATE film SET ruta='" & Path.GetDirectoryName(myFile).Replace("\", "\\") & "' WHERE id=" & myRow(0)("id").ToString)
                         End If
                     Next
-                    sql &= " WHERE filename IN ('" & If(myFiles.Length = 1, Path.GetFileName(myFiles(0)), myFiles.Aggregate(Function(a, b) Path.GetFileName(a) & "','" & Path.GetFileName(b))) & "')"
+                    sql &= " WHERE filenameHash IN ('" & String.Join("','", myFiles.Select(Function(x) GetMD5(Path.GetFileName(x)))) & "')"
                 Else
                     sql &= " WHERE 1<>1"
                 End If
             End If
             If (uxchkPendientesIMDB.CheckState = CheckState.Checked) Then
-                sql &= " AND (LENGTH(imdb_id) = 0 OR imdb_rating IS NULL OR imdb_rating = 0)"
+                sql &= " AND (LENGTH(T1.imdb_id) = 0 OR imdb_rating IS NULL OR imdb_rating = 0)"
             ElseIf (uxchkPendientesIMDB.CheckState = CheckState.Indeterminate) Then
-                sql &= " AND NOT (LENGTH(imdb_id) = 0 OR imdb_rating IS NULL OR imdb_rating = 0)"
+                sql &= " AND NOT (LENGTH(T1.imdb_id) = 0 OR imdb_rating IS NULL OR imdb_rating = 0)"
             End If
             If (uxchkPendientesOMDB.CheckState = CheckState.Checked) Then
-                sql &= " AND tiene_omdb = 0"
+                sql &= " AND omdb IS NULL"
             ElseIf (uxchkPendientesOMDB.CheckState = CheckState.Indeterminate) Then
-                sql &= " AND tiene_omdb = 1"
+                sql &= " AND omdb IS NOT NULL"
             End If
-            If (uxchkDuplicados.Checked) Then sql &= " AND duplicados > 1"
-            If (uxtxtBuscar.Text.Length > 0) Then sql &= " AND CONCAT(filename ,' ',name,' ',IFNULL(imdb_id,'')) LIKE '%" & uxtxtBuscar.Text & "%'"
+            If (uxchkDuplicados.Checked) Then sql &= " AND T2.duplicados IS NOT NULL"
+            If (uxtxtBuscar.Text.Length > 0) Then sql &= " AND CONCAT(filename ,' ',name,' ',IFNULL(T1.imdb_id,'')) LIKE '%" & uxtxtBuscar.Text & "%'"
             Return baseDatos.Select(sql & " ORDER BY imdb_rating DESC, imdb_ratingcount DESC, Id")
         Catch ex As Exception
             Errores("CargarTabla: " & ex.Message)
@@ -194,11 +204,10 @@ Public Class MainForm
             If (bRecarga) Then
                 Dim myTabla As DataTable = CargarTabla()
                 uxgrd.DataSource = myTabla
-                Dim NumTotal As Integer
-                If (myTabla.Rows.Count > 0) Then NumTotal = CInt(myTabla.Rows(0)("total"))
                 media = CalculaMediaRating()                'Recalcula la media
-                Dim myTableMedia As DataTable = baseDatos.Select("SELECT SUM(CASE WHEN imdb_rating>0 AND duplicados>0 THEN imdb_rating/duplicados ELSE 0 END)/SUM(CASE WHEN imdb_rating>0 AND duplicados>0 THEN 1/duplicados ELSE 0 END) AS media FROM vw_film")
-                uxlblRegistros.Text = String.Format("Videos: {0} de {1} | Media Rating: {2:N2} de {3:N2}", myTabla.Rows.Count, NumTotal, media, myTableMedia.Rows(0)("media"))
+                Dim myTableMedia As DataTable = baseDatos.Select("SELECT COUNT(*) AS total, SUM(imdb_rating/IFNULL(duplicados,1))/SUM(1/IFNULL(duplicados,1)) AS media
+                                                                FROM film T1 LEFT JOIN (SELECT imdb_id, count(*) AS duplicados FROM film GROUP BY imdb_id HAVING COUNT(*)>1) T2 ON T2.imdb_id = T1.imdb_id WHERE imdb_rating > 0;")
+                uxlblRegistros.Text = String.Format("Videos: {0} de {1} | Media Rating: {2:N2} de {3:N2}", myTabla.Rows.Count, myTableMedia.Rows(0)("total"), media, myTableMedia.Rows(0)("media"))
             End If
 
             Dim sMRUFiles As String() = {}
@@ -233,6 +242,22 @@ Public Class MainForm
 #End Region
 
 #Region "Utilidades"
+
+    Private Sub UpdateHash()
+        Dim myTableTmp As DataTable = baseDatos.Select("SELECT id,filename FROM film")
+        For Each myRow As DataRow In myTableTmp.Rows
+            baseDatos.ExecuteNonQuery("UPDATE film SET filenameHash='" & GetMD5(myRow("filename").ToString) & "' WHERE id=" & myRow("id").ToString)
+        Next
+    End Sub
+
+    Private Function GetMD5(theInput As String) As String
+        Try
+            ' Convert to byte array and get hash
+            Return Convert.ToBase64String(hasher.ComputeHash(Encoding.UTF8.GetBytes(theInput)))
+        Catch ex As Exception
+            Return theInput
+        End Try
+    End Function
 
     ''' <summary>
     ''' Elimina del nombre de fichero pasado una lista de palabras configurada
