@@ -15,7 +15,7 @@ Option Explicit On
 Namespace My
     
     <Global.System.Runtime.CompilerServices.CompilerGeneratedAttribute(),  _
-     Global.System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.6.0.0"),  _
+     Global.System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0"),  _
      Global.System.ComponentModel.EditorBrowsableAttribute(Global.System.ComponentModel.EditorBrowsableState.Advanced)>  _
     Partial Friend NotInheritable Class MySettings
         Inherits Global.System.Configuration.ApplicationSettingsBase
@@ -177,9 +177,9 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("720p,xvid,ac3,dvdscr,mp3,hdrip,vodrip,brrip,480p,1080p,bluray,x264,bdrip,r5,rc,pr"& _ 
-            "oper,ws,mp4,nfo,dvdrip,hdscr,spanish,dx50,brscr,dual,h264,vhsrip,divx,dvbrip,aac"& _ 
-            ",wma,dts,scr,r6,vhsscr,webrip,hdtv,webdl,web-dl,yify")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("720p,xvid,ac3,dvdscr,mp3,hdrip,vodrip,brrip,480p,1080p,bluray,x264,x265,10bit,hev"& _ 
+            "c,bdrip,r5,rc,proper,ws,mp4,nfo,dvdrip,hdscr,spanish,dx50,brscr,dual,h264,vhsrip"& _ 
+            ",divx,dvbrip,aac,wma,dts,scr,r6,vhsscr,webrip,hdtv,webdl,web-dl,yify")>  _
         Public Property WordsList() As String
             Get
                 Return CType(Me("WordsList"),String)
