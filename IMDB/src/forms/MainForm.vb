@@ -380,9 +380,10 @@ Public Class MainForm
                 Case uxColumnName.Index
                     sql &= "name='" & QuitaComilla(myRow(uxColumnName.DataPropertyName).ToString) & "'"
                 Case uxColumnImdb.Index
-                    Dim url As String = Regex.Replace(myRow(uxColumnImdb.DataPropertyName).ToString, "(.+/).+$", "$1")
+                    Dim url As String = myRow(uxColumnImdb.DataPropertyName).ToString
                     If (CheckURLFormat(url)) Then
-                        myRow(uxColumnImdb.DataPropertyName) = Split(url, "/"c)(4)
+                        Dim imdbId As String = Regex.Match(url, "/title/(tt\d+)/").Groups(1).Value
+                        myRow(uxColumnImdb.DataPropertyName) = imdbId
                         sql &= "imdb_id='" & myRow(uxColumnImdb.DataPropertyName).ToString & "'"
                     Else
                         If (MsgBox("Eliminar los datos IMDB de la linea?", MsgBoxStyle.YesNo) = MsgBoxResult.Yes) Then
